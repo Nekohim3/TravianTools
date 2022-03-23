@@ -1,0 +1,158 @@
+﻿<Window x:Class="TravianTools.Views.TemplateTaskListView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TravianTools.Views"
+        xmlns:viewModels="clr-namespace:TravianTools.ViewModels"
+        xmlns:bdata="clr-namespace:TravianTools.Data.StaticData"
+        xmlns:cmdType="clr-namespace:TravianTools.TravianCommands"
+        mc:Ignorable="d" WindowStartupLocation="CenterScreen" d:DataContext="{d:DesignInstance viewModels:TemplateTaskListViewModel}"
+        Title="TaskListTemplateView" Height="720" Width="1280">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="400"/>
+        </Grid.ColumnDefinitions>
+        <!-- Список шаблонов -->
+        <Grid Grid.Column="0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="10"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" HorizontalAlignment="Center" Text="Список задачников"/>
+                <ListView Grid.Row="1" ItemsSource="{Binding TaskListList}" SelectedItem="{Binding SelectedTaskList}" DisplayMemberPath="Name"/>
+                <Button Grid.Row="2" Command="{Binding AddTaskListCmd}" Content="Добавить" Margin="2"/>
+                <Button Grid.Row="3" Command="{Binding EditTaskListCmd}" Content="Редактировать" Margin="2"/>
+                <Button Grid.Row="4" Command="{Binding RemoveTaskListCmd}" Content="Удалить" Margin="2"/>
+                <Button Grid.Row="6" Command="{Binding ExportTaskListCmd}" Content="Экспорт" Margin="2"/>
+                <Button Grid.Row="7" Command="{Binding ImportTaskListCmd}" Content="Импорт" Margin="2"/>
+            </Grid>
+        </Grid>
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0">
+                <GroupBox Header="Задачник" Margin="0,7,0,0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="80"/>
+                            <ColumnDefinition Width="80"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Id:" Margin="3,0"/>
+                        <TextBlock Grid.Column="1" Text="{Binding TempTaskListEditVM.CurrentTaskList.Id}" Margin="3,0" Width="50"/>
+                        <TextBlock Grid.Column="2" Text="Name:" Margin="3,0"/>
+                        <TextBox Grid.Column="3" Text="{Binding TempTaskListEditVM.CurrentTaskList.Name, UpdateSourceTrigger=PropertyChanged}" Margin="3,0"/>
+
+                        <Button Grid.Column="4" Margin="3" Command="{Binding SaveTaskListCmd}" Content="Сохранить"/>
+                        <Button Grid.Column="5" Margin="3" Command="{Binding CancelTaskListCmd}" Content="Отмена"/>
+                    </Grid>
+                </GroupBox>
+            </Grid>
+            <Grid Grid.Row="1">
+                <GroupBox Header="Задача">
+                    <Grid DataContext="{Binding TempTaskEditVM}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="200"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <!-- параметры комманды -->
+                        <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3">
+                            <!-- Building upgrade -->
+                            <Grid >
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid Grid.Row="0" Grid.Column="0">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Деревня" Margin="5"/>
+                                    <ComboBox Grid.Row="0" Grid.Column="1" Width="200" 
+                                              ItemsSource="{Binding NonExistVillageList}" DisplayMemberPath="Name"
+                                              SelectedValue="{Binding Path=CurrentTask.Command.VillageId}" SelectedValuePath="Id"/>
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Здание" Margin="5"/>
+                                    <ComboBox Grid.Row="1" Grid.Column="1" Width="200" 
+                                              ItemsSource="{Binding Source={x:Static bdata:BuildingsData.BuildingList}}" DisplayMemberPath="Name"
+                                              SelectedValue="{Binding Path=CurrentTask.BuildingType}" SelectedValuePath="Id"/>
+                                </Grid>
+
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                </GroupBox>
+            </Grid>
+            <Grid Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="100"/>
+                </Grid.ColumnDefinitions>
+            </Grid>
+        </Grid>
+        <!-- Список задач -->
+        <Grid Grid.Column="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="10"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Row="0" HorizontalAlignment="Center" Text="Список задач"/>
+            <ListView Grid.Row="1" ItemsSource="{Binding TaskListCollection.TaskListForEdit.TaskList}" SelectedItem="{Binding TaskListCollection.TaskListForEdit.SelectedTask}" DisplayMemberPath="Name"/>
+            <Button Grid.Row="2" Command="{Binding AddTaskCmd}" Content="Выше" Margin="2"/>
+            <Button Grid.Row="3" Command="{Binding AddTaskCmd}" Content="Ниже" Margin="2"/>
+            <Grid Grid.Row="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="0" Command="{Binding AddTaskCmd}" Content="Добавить" Margin="2"/>
+                <ComboBox Grid.Column="1" Margin="2" ItemsSource="{Binding CmdTypeList}" SelectedItem="{Binding SelectedCmdType}"/>
+            </Grid>
+            <Button Grid.Row="6" Command="{Binding EditTaskCmd}" Content="Редактировать" Margin="2"/>
+            <Button Grid.Row="7" Command="{Binding RemoveTaskCmd}" Content="Удалить" Margin="2"/>
+        </Grid>
+    </Grid>
+</Window>

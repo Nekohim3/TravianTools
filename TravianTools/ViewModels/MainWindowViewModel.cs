@@ -133,7 +133,10 @@ namespace TravianTools.ViewModels
 
         private void OnTaskListEditor()
         {
-
+            var f  = new TemplateTaskListView();
+            var vm = new TemplateTaskListViewModel();
+            f.DataContext = vm;
+            f.ShowDialog();
         }
 
         private void OnTaskList()
@@ -172,7 +175,7 @@ namespace TravianTools.ViewModels
 
         private void OnAddAccount()
         {
-            AddAccount = new Account() {UseProxy = true};
+            AddAccount = new Account() {UseProxy = true, UseFastBuilding = true};
         }
 
         private void OnRemoveAccount()

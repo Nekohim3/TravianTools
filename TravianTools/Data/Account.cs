@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using Microsoft.Practices.Prism.ViewModel;
+using Newtonsoft.Json;
 using OpenQA.Selenium;
 using TravianTools.TravianUtils;
 using TravianTools.Utils;
@@ -14,20 +15,7 @@ namespace TravianTools.Data
 {
     public class Account : BaseTravianEntity
     {
-        private string _status;
-        [XmlIgnore]
-        public string Status
-        {
-            get => _status;
-            set
-            {
-                _status = value;
-                RaisePropertyChanged(() => Status);
-            }
-        }
-
         private string _name;
-
         public string Name
         {
             get => _name;
@@ -39,7 +27,6 @@ namespace TravianTools.Data
         }
 
         private string _password;
-
         public string Password
         {
             get => _password;
@@ -51,7 +38,6 @@ namespace TravianTools.Data
         }
 
         private bool _registrationComplete;
-
         public bool RegistrationComplete
         {
             get => _registrationComplete;
@@ -62,9 +48,40 @@ namespace TravianTools.Data
             }
         }
 
+        private string _refLink;
+        public string RefLink
+        {
+            get => _refLink;
+            set
+            {
+                _refLink = value;
+                RaisePropertyChanged(() => RefLink);
+            }
+        }
+        
+        private bool _useProxy;
+        public bool UseProxy
+        {
+            get => _useProxy;
+            set
+            {
+                _useProxy = value;
+                RaisePropertyChanged(() => UseProxy);
+            }
+        }
+        
+        public bool UseFastBuilding
+        {
+            get => FreeInstantBuilder.Working;
+            set
+            {
+                FreeInstantBuilder.Working = value;
+                RaisePropertyChanged(() => UseFastBuilding);
+            }
+        }
+        
         private Player _player;
-
-        [XmlIgnore]
+        [JsonIgnore]
         public Player Player
         {
             get => _player;
@@ -76,8 +93,7 @@ namespace TravianTools.Data
         }
 
         private bool _running;
-
-        [XmlIgnore]
+        [JsonIgnore]
         public bool Running
         {
             get => _running;
@@ -88,41 +104,40 @@ namespace TravianTools.Data
             }
         }
 
-        private string _refLink;
+        [JsonIgnore] public Driver           Driver { get; set; }
 
-        public string RefLink
+        private                         FreeInstantBuild _freeInstantBuilder;
+        [JsonIgnore]
+        public FreeInstantBuild FreeInstantBuilder
         {
-            get => _refLink;
+            get => _freeInstantBuilder;
             set
             {
-                _refLink = value;
-                RaisePropertyChanged(() => RefLink);
+                _freeInstantBuilder = value;
+                RaisePropertyChanged(() => FreeInstantBuilder);
             }
         }
 
-        [XmlIgnore] public Driver Driver { get; set; }
-
-        //tasklist
-
-        private bool _useProxy;
-
-        public bool UseProxy
+        private string _status;
+        [JsonIgnore]
+        public string Status
         {
-            get => _useProxy;
+            get => _status;
             set
             {
-                _useProxy = value;
-                RaisePropertyChanged(() => UseProxy);
+                _status = value;
+                RaisePropertyChanged(() => Status);
             }
         }
 
-        [XmlIgnore] public string Session  => Driver?.GetSession();
-        [XmlIgnore] public int    PlayerId => Driver?.GetPlayerId() ?? -1;
+        //[XmlIgnore] [JsonIgnore] public string Session  => Driver?.GetSession();
+        [JsonIgnore] public int    PlayerId => Driver?.GetPlayerId() ?? -1;
 
         public Account()
         {
-            Password = "KuroNeko2112";
-            Player   = new Player(this);
+            Password           = "KuroNeko2112";
+            Player             = new Player(this);
+            FreeInstantBuilder = new FreeInstantBuild(this);
         }
 
         public void Run(Account acc)
@@ -145,6 +160,8 @@ namespace TravianTools.Data
                                                      UpdateAll();
                                                  }
                                              }
+
+                                             Running = true;
                                          });
         }
 

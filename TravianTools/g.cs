@@ -8,8 +8,10 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Xml.Serialization;
 using Microsoft.Practices.Prism.ViewModel;
+using Newtonsoft.Json;
 using TravianTools.Data;
 using TravianTools.Utils;
+using TravianTools.Utils.DataBase;
 using TravianTools.ViewModels;
 using TravianTools.Views;
 
@@ -17,7 +19,9 @@ namespace TravianTools
 {
     public static class g
     {
-        public static Accounts Accounts { get; set; }
+        public static TempTaskListService TempTaskListService { get; set; }
+        public static TempTaskService     TempTaskService     { get; set; }
+        public static Accounts            Accounts            { get; set; }
 
         public static Settings Settings { get; set; }
 
@@ -25,8 +29,10 @@ namespace TravianTools
 
         static g()
         {
-            Accounts = new Accounts();
-            Settings = new Settings();
+            Accounts            = new Accounts();
+            Settings            = new Settings();
+            TempTaskListService = new TempTaskListService();
+            TempTaskService     = new TempTaskService();
         }
 
         public static void Shutdown()
@@ -53,7 +59,7 @@ namespace TravianTools
         }
 
         private Account _selectedAccount;
-        [XmlIgnore]
+        [JsonIgnore]
         public Account SelectedAccount
         {
             get => _selectedAccount;
@@ -88,19 +94,14 @@ namespace TravianTools
 
         public static void Save()
         {
-            var formatter = new XmlSerializer(typeof(Accounts));
-
-            using (var fs = new FileStream($"{g.Settings.UserDataPath}\\Accounts.xml", FileMode.Create))
-                formatter.Serialize(fs, g.Accounts);
+            File.WriteAllText($"{g.Settings.UserDataPath}\\Accounts", JsonConvert.SerializeObject(g.Accounts, Formatting.Indented));
         }
 
         public static void Load()
         {
-            if (File.Exists($"{g.Settings.UserDataPath}\\Accounts.xml"))
+            if (File.Exists($"{g.Settings.UserDataPath}\\Accounts"))
             {
-                var formatter = new XmlSerializer(typeof(Accounts));
-                using (var fs = new FileStream($"{g.Settings.UserDataPath}\\Accounts.xml", FileMode.Open, FileAccess.Read))
-                    g.Accounts = (Accounts)formatter.Deserialize(fs);
+                g.Accounts = JsonConvert.DeserializeObject<Accounts>(File.ReadAllText($"{g.Settings.UserDataPath}\\Accounts"));
             }
             else
             {

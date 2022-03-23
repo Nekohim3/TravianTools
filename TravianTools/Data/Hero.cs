@@ -164,6 +164,6 @@ namespace TravianTools.Data
         }
 
         public bool HasBuildItem => Items.Count(x => x.ItemType == 138) != 0;
-        public bool HasNpcItem => Items.Count(x => x.ItemType == 138) != 0;
+        public bool HasNpcItem => Items.Count(x => x.ItemType == 139) != 0;
     }
 }

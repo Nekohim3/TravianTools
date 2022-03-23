@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Documents;
 using TravianTools.Data.StaticData;
+using TravianTools.TravianCommands;
 using TravianTools.TravianUtils;
 using TravianTools.Utils;
 using TravianTools.ViewModels;
@@ -22,23 +23,6 @@ namespace TravianTools
     {
         protected override void OnStartup(StartupEventArgs e)
         {
-            //using(var fs = new FileStream("test.txt", FileMode.Open))
-            //using (var sr = new StreamReader(fs))
-            //{
-            //    var str   = sr.ReadToEnd();
-            //    var lines = str.Replace(";", ";\n");
-            //    File.WriteAllText("data.txt", lines);
-            //}
-            //var lst = new List<string>();
-            //lst.Add("qwe:123");
-            //lst.Add("asd:234");
-            //lst.Add("zxc:");
-            //var str = $"['{string.Join("','", lst)}']";
-            //var q   = RPG.GetCache("123", str);
-
-            //var lst  = BuildingsData.GetAllDep(20);
-            //var list = lst.Select(x => (BuildingsData.GetById(x.id).Name, x.lvl)).ToList();
-
             base.OnStartup(e);
             Logger.Init();
             Settings.Load();

@@ -15,6 +15,7 @@ namespace TravianTools.TravianCommands
         public int Amount    { get; set; }
         public int Id        { get; set; }
         public int VillageId { get; set; }
+
         public UseHeroItem() : base(null)
         {
 

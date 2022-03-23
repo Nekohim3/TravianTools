@@ -6,16 +6,16 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using Microsoft.Practices.Prism.ViewModel;
+using Newtonsoft.Json;
 using TravianTools.ViewModels;
 using TravianTools.Views;
 
 namespace TravianTools.Utils
 {
-    [Serializable]
     public class Settings : NotificationObject
     {
         private string _userDataPath;
-        [XmlIgnore]
+        [JsonIgnore]
         public string UserDataPath
         {
             get => _userDataPath;
@@ -72,15 +72,12 @@ namespace TravianTools.Utils
 
         public static void Save()
         {
-            var formatter = new XmlSerializer(typeof(Settings));
-
-            using (var fs = new FileStream($"{g.Settings.UserDataPath}\\Settings.xml", FileMode.Create))
-                formatter.Serialize(fs, g.Settings);
+            File.WriteAllText($"{g.Settings.UserDataPath}\\Settings", JsonConvert.SerializeObject(g.Settings, Formatting.Indented));
         }
 
         public static void Load()
         {
-            if (!File.Exists($"{g.Settings.UserDataPath}\\Settings.xml"))
+            if (!File.Exists($"{g.Settings.UserDataPath}\\Settings"))
             {
                 var f  = new ServerSettingsView();
                 var vm = new ServerSettingsViewModel(f.Close);
@@ -89,9 +86,7 @@ namespace TravianTools.Utils
             }
             else
             {
-                var formatter = new XmlSerializer(typeof(Settings));
-                using (var fs = new FileStream($"{g.Settings.UserDataPath}\\Settings.xml", FileMode.Open, FileAccess.Read))
-                    g.Settings = (Settings) formatter.Deserialize(fs);
+                g.Settings = JsonConvert.DeserializeObject<Settings>(File.ReadAllText($"{g.Settings.UserDataPath}\\Settings"));
             }
         }
     }
