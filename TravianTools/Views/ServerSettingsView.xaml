@@ -1,0 +1,30 @@
+﻿<Window x:Class="TravianTools.Views.ServerSettingsView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TravianTools.Views"
+        xmlns:viewModels="clr-namespace:TravianTools.ViewModels"
+        mc:Ignorable="d" WindowStartupLocation="CenterScreen" d:DataContext="{d:DesignInstance viewModels:ServerSettingsViewModel}"
+        Title="ServerSettingsView" Height="150" Width="300" Closing="ServerSettingsView_OnClosing">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <TextBlock Grid.Column="0" Grid.Row="0" Text="Server" Margin="3"/>
+        <TextBox Grid.Row="0" Grid.Column="1" Margin="3" Text="{Binding Server, UpdateSourceTrigger=PropertyChanged}"/>
+        <TextBlock Grid.Column="0" Grid.Row="1" Text="Domain" Margin="3"/>
+        <TextBox Grid.Row="1" Grid.Column="1" Margin="3" Text="{Binding Domain, UpdateSourceTrigger=PropertyChanged}"/>
+        <TextBlock Grid.Column="0" Grid.Row="2" Text="Proxy" Margin="3"/>
+        <TextBox Grid.Row="2" Grid.Column="1" Margin="3" Text="{Binding Proxy, UpdateSourceTrigger=PropertyChanged}"/>
+        <Button Grid.Row="3" Grid.ColumnSpan="2" Width="100" Content="Сохранить" Command="{Binding SaveCmd}"/>
+    </Grid>
+</Window>

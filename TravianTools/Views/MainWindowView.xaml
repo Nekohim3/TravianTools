@@ -1,0 +1,141 @@
+﻿<Window x:Class="TravianTools.Views.MainWindowView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TravianTools.Views"
+        xmlns:viewModels="clr-namespace:TravianTools.ViewModels"
+        xmlns:travianTools="clr-namespace:TravianTools"
+        mc:Ignorable="d" WindowStartupLocation="CenterScreen" d:DataContext="{d:DesignInstance viewModels:MainWindowViewModel}"
+        Title="{Binding Source={x:Static travianTools:g.Accounts}, Path=SelectedAccount.Name}" Height="720" Width="1280">
+    <Window.Resources>
+        <viewModels:ObjIsNullToVisibilityConverter x:Key="ObjIsNullToVisibilityConverter"/>
+        <viewModels:ObjIsNullToVisibilityReverseConverter x:Key="ObjIsNullToVisibilityReverseConverter"/>
+        <viewModels:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <viewModels:BoolToVisibilityReverseConverter x:Key="BoolToVisibilityReverseConverter"/>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <!-- кнопки -->
+        <Grid Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0" Margin="3,0,3,0" Command="{Binding ShowAccountsCmd}" Content="Аккаунты" Width="70"/>
+            <Button Grid.Column="1" Margin="3,0,3,0" Command="{Binding SettingsCmd}" Content="Настройки" Width="70"/>
+            <Button Grid.Column="2" Margin="3,0,3,0" Width="120" Content="Запустить браузер" Command="{Binding StartBrowserCmd}" 
+                    Visibility="{Binding Source={x:Static travianTools:g.Accounts}, Path=SelectedAccount.Running, Converter={StaticResource BoolToVisibilityReverseConverter}}"/>
+            <Button Grid.Column="2" Margin="3,0,3,0" Width="120" Content="Остановить браузер" Command="{Binding StopBrowserCmd}" 
+                    Visibility="{Binding Source={x:Static travianTools:g.Accounts}, Path=SelectedAccount.Running, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <Button Grid.Column="3" Content="TestUpdate" Command="{Binding TestUpdateCmd}"/>
+            <Button Grid.Column="7" Width="70" Content="Show data" Command="{Binding ShowDataCmd}" Margin="3,0,3,0"/>
+            <Button Grid.Column="8" Width="70" Content="Таск лист" Command="{Binding TaskListCmd}" Margin="3,0,3,0"/>
+        </Grid>
+        <!--  -->
+        <Grid Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <!-- Список аккаунтов -->
+            <Grid Grid.Column="0" Margin="3,3" Visibility="{Binding ShowAccounts, Converter={StaticResource BoolToVisibilityConverter}}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <TextBlock Text="Аккаунты" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <ListView Grid.Row="1" Width="150" ItemsSource="{Binding Source={x:Static travianTools:g.Accounts}, Path=AccountList}" SelectedItem="{Binding Source={x:Static travianTools:g.Accounts}, Path=SelectedAccount}">
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="ListViewItem">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Border Grid.ColumnSpan="2" x:Name="BorderForSelect" Background="{StaticResource {x:Static SystemColors.HighlightBrushKey}}" Visibility="Collapsed"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding Name}" Margin="2,0,0,0"/>
+                                            <Ellipse Grid.Column="0" Fill="Green" Width="10" Height="10" Visibility="{Binding Running, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                            <Ellipse Grid.Column="0" Fill="Red" Width="10" Height="10" Visibility="{Binding Running, Converter={StaticResource BoolToVisibilityReverseConverter}}"/>
+                                        </Grid>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsSelected" Value="true">
+                                                <Setter TargetName="BorderForSelect" Property="Visibility" Value="Visible"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                </ListView>
+                <Button Grid.Row="2" Content="Добавить" Command="{Binding AddAccountCmd}" Visibility="{Binding AddAccount, Converter={StaticResource ObjIsNullToVisibilityConverter}}" Margin="0,2,0,0"/>
+                <Button Grid.Row="3" Content="Удалить" Command="{Binding RemoveAccountCmd}" Visibility="{Binding AddAccount, Converter={StaticResource ObjIsNullToVisibilityConverter}}" Margin="0,2,0,0"/>
+                <TextBlock Grid.Row="4" Text="Логин" Visibility="{Binding AddAccount, Converter={StaticResource ObjIsNullToVisibilityReverseConverter}}"/>
+                <TextBox Grid.Row="5" Text="{Binding AddAccount.Name, UpdateSourceTrigger=PropertyChanged}" Visibility="{Binding AddAccount, Converter={StaticResource ObjIsNullToVisibilityReverseConverter}}"/>
+                <TextBlock Grid.Row="6" Text="Пароль" Visibility="{Binding AddAccount, Converter={StaticResource ObjIsNullToVisibilityReverseConverter}}"/>
+                <TextBox Grid.Row="7" Text="{Binding AddAccount.Password, UpdateSourceTrigger=PropertyChanged}" Visibility="{Binding AddAccount, Converter={StaticResource ObjIsNullToVisibilityReverseConverter}}"/>
+                <TextBlock Grid.Row="8" Text="Рефка" Visibility="{Binding AddAccount, Converter={StaticResource ObjIsNullToVisibilityReverseConverter}}"/>
+                <TextBox Grid.Row="9" MaxWidth="150" Text="{Binding AddAccount.RefLink, UpdateSourceTrigger=PropertyChanged}" Visibility="{Binding AddAccount, Converter={StaticResource ObjIsNullToVisibilityReverseConverter}}"/>
+                <CheckBox Grid.Row="10" Content="Использовать прокси" HorizontalAlignment="Center" Margin="0,3" IsChecked="{Binding AddAccount.UseProxy}"  Visibility="{Binding AddAccount, Converter={StaticResource ObjIsNullToVisibilityReverseConverter}}"/>
+                <Button Grid.Row="13" Content="Сохранить" Command="{Binding SaveAccountCmd}" Visibility="{Binding AddAccount, Converter={StaticResource ObjIsNullToVisibilityReverseConverter}}" Margin="0,2,0,0"/>
+                <Button Grid.Row="14" Content="Отмена" Command="{Binding CancelAccountCmd}" Visibility="{Binding AddAccount, Converter={StaticResource ObjIsNullToVisibilityReverseConverter}}" Margin="0,2,0,0"/>
+            </Grid>
+            <!-- Main -->
+            <Grid Grid.Column="1">
+                <ContentControl Content="{Binding Source={x:Static travianTools:g.Accounts}, Path=SelectedAccount.Driver.Host}" Visibility="{Binding ShowData, Converter={StaticResource BoolToVisibilityReverseConverter}}"/>
+                <!--<Grid Visibility="{Binding ShowData, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="400"/>
+                        <ColumnDefinition Width="400"/>
+                        <ColumnDefinition Width="400"/>
+                        <ColumnDefinition Width="400"/>
+                        <ColumnDefinition Width="400"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock>
+                        Nekohim3 (Id:9876; Gold:)
+                    </TextBlock>
+                </Grid>-->
+            </Grid>
+            <!-- таск лист -->
+            <Grid Grid.Column="2" Visibility="{Binding ShowTaskList, Converter={StaticResource BoolToVisibilityConverter}}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <ComboBox Grid.Row="0" Margin="0,3"/>
+                <Button Grid.Row="2" Margin="0,3" Content="Редактор" Command="{Binding TaskListEditorCmd}"/>
+                <ListView Width="200" Grid.Row="1"></ListView>
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>
