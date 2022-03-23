@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Newtonsoft.Json.Linq;
+using TravianTools.Data;
 
 namespace TravianTools.TravianUtils
 {
@@ -37,9 +38,9 @@ namespace TravianTools.TravianUtils
 
         private static int GetPosN(string s) => MList.First(x => x.Piece == s).Pos;
 
-        public void Solve(string session)
+        public void Solve(Account acc)
         {
-            TRequest.SolvePuzzle(session, GetMoves(TRequest.GetPuzzle(session)) as dynamic);
+            acc.Driver.SolvePuzzle(GetMoves(acc.Driver.GetPuzzle()) as dynamic);
         }
         public static JArray GetMoves(dynamic data)
         {

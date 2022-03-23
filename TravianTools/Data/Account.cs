@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using Microsoft.Practices.Prism.ViewModel;
+using OpenQA.Selenium;
 using TravianTools.TravianUtils;
 using TravianTools.Utils;
 
@@ -13,6 +14,18 @@ namespace TravianTools.Data
 {
     public class Account : BaseTravianEntity
     {
+        private string _status;
+        [XmlIgnore]
+        public string Status
+        {
+            get => _status;
+            set
+            {
+                _status = value;
+                RaisePropertyChanged(() => Status);
+            }
+        }
+
         private string _name;
 
         public string Name
@@ -124,7 +137,15 @@ namespace TravianTools.Data
                                              var sel = g.Accounts.SelectedAccount;
                                              g.Accounts.SelectedAccount = null;
                                              g.Accounts.SelectedAccount = sel;
-            });
+                                             if (RegistrationComplete)
+                                             {
+                                                 var ele = Driver.Wait(By.Id("layoutHeader"));
+                                                 if (ele != null)
+                                                 {
+                                                     UpdateAll();
+                                                 }
+                                             }
+                                         });
         }
 
         public void Stop()
@@ -137,20 +158,29 @@ namespace TravianTools.Data
 
         public bool UpdateAll()
         {
-            //Logger.Info($"[{Name}]: Update all");
+            Status = "Updating all data";
             Driver.GetCache_All();
-
-            //if (data == null || data.cache == null || data.cache.Count == 0 || data.time == null)
-            //{
-            //    Logger.Info($"[{Name}]: Update all FAILED");
-            //    return false;
-            //}
-
-            //Update(data, (long) data.time);
-            //data = TRequest.GetCache(Session, new List<string> {"Collection:Quest:", "Collection:HeroItem:own"});
-            //Update(data, (long) data.time);
             Driver.GetCache(new List<string> {"Collection:Quest:", "Collection:HeroItem:own"});
-            //Logger.Info($"[{Name}]: Update all SUCC");
+
+
+
+            //Player.Update();
+            //Player.UpdateQuestList();
+            //Player.UpdateVillageList();
+            //Player.Hero.Update();
+            //Player.Hero.UpdateItems();
+            //Player.VillageList[0].Update();
+            //Player.VillageList[0].UpdateBuildingList();
+            //Player.VillageList[0].UpdateBuildingQueue();
+            //Player.VillageList[0].UpdateMovingTroops();
+            //Player.VillageList[0].UpdateStationaryTroops();
+            //Player.VillageList[1].Update();
+            //Player.VillageList[1].UpdateBuildingList();
+            //Player.VillageList[1].UpdateBuildingQueue();
+            //Player.VillageList[1].UpdateMovingTroops();
+            //Player.VillageList[1].UpdateStationaryTroops();
+
+            Status = "";
             return true;
         }
 
@@ -286,6 +316,7 @@ namespace TravianTools.Data
             //Player.VillageList[1].UpdateMovingTroops();
             //Player.VillageList[1].UpdateStationaryTroops();
             //bq
+
         }
 
     }

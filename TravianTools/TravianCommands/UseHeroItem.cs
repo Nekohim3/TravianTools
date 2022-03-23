@@ -28,7 +28,7 @@ namespace TravianTools.TravianCommands
         }
         public override void Execute()
         {
-            Http.Post(RPG.UseHeroItem(Account.Session, Amount, Id, VillageId));
+            //Http.Post(RPG.UseHeroItem(Account.Session, Amount, Id, VillageId));
         }
     }
 }

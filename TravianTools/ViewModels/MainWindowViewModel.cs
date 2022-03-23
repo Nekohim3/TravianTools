@@ -11,6 +11,7 @@ using System.Windows.Media;
 using Microsoft.Practices.Prism.Commands;
 using Microsoft.Practices.Prism.ViewModel;
 using TravianTools.Data;
+using TravianTools.TravianCommands;
 using TravianTools.Views;
 
 namespace TravianTools.ViewModels
@@ -125,7 +126,9 @@ namespace TravianTools.ViewModels
 
         private void OnTestUpdateCmd()
         {
-            g.Accounts.SelectedAccount.UpdateAll();
+            var cmd = new BuildingUpgradeCmd(g.Accounts.SelectedAccount, 0, 25, 17) as BaseCommand;
+            cmd.Execute();
+            //g.Accounts.SelectedAccount.UpdateAll();
         }
 
         private void OnTaskListEditor()

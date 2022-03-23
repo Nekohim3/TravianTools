@@ -10,11 +10,19 @@ using TravianTools.TravianUtils;
 namespace TravianTools.TravianCommands
 {
     [Serializable]
-    public class BuildingUpgradeCmd : BaseCommand
+    public class BuildingUpgradeCmd : ResourceCommand
     {
         public int VillageId       {get;set;}
         public int LocationId      {get;set;}
         public int BuildingType { get; set; }
+        //Использовать нпц обмен
+            //остальные ресы
+                //поровну
+                //ввести вручную
+                //% текущему
+                //% задать вручную
+                //
+                //
 
         public BuildingUpgradeCmd() : base(null)
         {
@@ -36,7 +44,17 @@ namespace TravianTools.TravianCommands
                 VillageId = Account.Player.VillageList[Math.Abs(VillageId)].Id;
             }
 
+
+
             Account.Driver.BuildingUpgrade(VillageId, LocationId, BuildingType);
+        }
+    }
+
+    public abstract class ResourceCommand : BaseCommand
+    {
+        protected ResourceCommand(Account account) : base(account)
+        {
+
         }
     }
 }

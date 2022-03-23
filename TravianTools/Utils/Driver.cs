@@ -14,6 +14,7 @@ using Newtonsoft.Json.Linq;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Interactions;
+using OpenQA.Selenium.Support.UI;
 using TravianTools.Data;
 using TravianTools.SeleniumHost;
 using TravianTools.TravianUtils;
@@ -109,6 +110,23 @@ namespace TravianTools.Utils
             return dynamicDecodedSessionJson.id;
         }
 
+        public IWebElement Wait(By by, int timeout = 10)
+        {
+            try
+            {
+                var wait = new WebDriverWait(Chrome, TimeSpan.FromSeconds(timeout));
+                var el   = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(by));
+
+                Logger.Info($"Browser Wait element={by} timeout={timeout} succ");
+                return el;
+            }
+            catch
+            {
+                Logger.Info($"Browser Wait element={by} timeout={timeout} err");
+                return null;
+            }
+        }
+
         public string Post(JObject json)
         {
             var req = (HttpWebRequest)WebRequest.Create(
@@ -138,6 +156,7 @@ namespace TravianTools.Utils
             var strReader = new StreamReader(resp.GetResponseStream());
             var workingPage = strReader.ReadToEnd();
             resp.Close();
+            Logger.Data(workingPage);
             return workingPage;
         }
 
@@ -173,7 +192,7 @@ namespace TravianTools.Utils
                     return;
                 }
 
-                Account.Update(data, data.time);
+                Account.Update(data, (long)data.time);
             }
             catch (Exception e)
             {
@@ -185,7 +204,7 @@ namespace TravianTools.Utils
         {
             Logger.Info($"[{Account.Name}]: BuildingUpgrade ({villageId}, {locationId}, {buildingType})");
             try
-            {
+            {   
                 var data = JObject.Parse(Post(RPG.BuildingUpgrade(GetSession(), villageId, locationId, buildingType))) as dynamic;
                 if (data == null || data.cache == null || data.cache.Count == 0 || data.time == null)
                 {
@@ -193,7 +212,7 @@ namespace TravianTools.Utils
                     return;
                 }
 
-                Account.Update(data, data.time);
+                Account.Update(data, (long)data.time);
             }
             catch (Exception e)
             {
@@ -201,6 +220,32 @@ namespace TravianTools.Utils
             }
         }
 
+        public void SolvePuzzle(JArray moves)
+        {
+            Logger.Info($"[{Account.Name}]: SolvePuzzle");
+            try
+            {
+                Post(RPG.SolvePuzzle(GetSession(), moves));
+            }
+            catch (Exception e)
+            {
+                Logger.Info($"[{Account.Name}]: SolvePuzzle FAILED with exception:\n{e}\n{e.InnerException}\n{e.InnerException?.InnerException}");
+            }
+        }
+
+        public JObject GetPuzzle()
+        {
+            Logger.Info($"[{Account.Name}]: GetPuzzle");
+            try
+            {
+                return JObject.Parse(Post(RPG.GetPuzzle(GetSession())));
+            }
+            catch (Exception e)
+            {
+                Logger.Info($"[{Account.Name}]: GetPuzzle FAILED with exception:\n{e}\n{e.InnerException}\n{e.InnerException?.InnerException}");
+                return null;
+            }
+        }
 
         #region Cache
 
@@ -216,7 +261,7 @@ namespace TravianTools.Utils
                     return;
                 }
 
-                Account.Update(data, data.time);
+                Account.Update(data, (long)data.time);
             }
             catch (Exception e)
             {
@@ -236,7 +281,7 @@ namespace TravianTools.Utils
                     return;
                 }
 
-                Account.Update(data, data.time);
+                Account.Update(data, (long)data.time);
             }
             catch (Exception e)
             {
@@ -256,7 +301,7 @@ namespace TravianTools.Utils
                     return;
                 }
 
-                Account.Update(data, data.time);
+                Account.Update(data, (long)data.time);
             }
             catch (Exception e)
             {
@@ -276,7 +321,7 @@ namespace TravianTools.Utils
                     return;
                 }
 
-                Account.Update(data, data.time);
+                Account.Update(data, (long)data.time);
             }
             catch (Exception e)
             {
@@ -296,7 +341,7 @@ namespace TravianTools.Utils
                     return;
                 }
 
-                Account.Update(data, data.time);
+                Account.Update(data, (long)data.time);
             }
             catch (Exception e)
             {
@@ -316,7 +361,7 @@ namespace TravianTools.Utils
                     return;
                 }
 
-                Account.Update(data, data.time);
+                Account.Update(data, (long)data.time);
             }
             catch (Exception e)
             {
@@ -336,7 +381,7 @@ namespace TravianTools.Utils
                     return;
                 }
 
-                Account.Update(data, data.time);
+                Account.Update(data, (long)data.time);
             }
             catch (Exception e)
             {
@@ -356,7 +401,7 @@ namespace TravianTools.Utils
                     return;
                 }
 
-                Account.Update(data, data.time);
+                Account.Update(data, (long)data.time);
             }
             catch (Exception e)
             {
@@ -376,7 +421,7 @@ namespace TravianTools.Utils
                     return;
                 }
 
-                Account.Update(data, data.time);
+                Account.Update(data, (long)data.time);
             }
             catch (Exception e)
             {
@@ -396,7 +441,7 @@ namespace TravianTools.Utils
                     return;
                 }
 
-                Account.Update(data, data.time);
+                Account.Update(data, (long)data.time);
             }
             catch (Exception e)
             {
@@ -416,7 +461,7 @@ namespace TravianTools.Utils
                     return;
                 }
 
-                Account.Update(data, data.time);
+                Account.Update(data, (long)data.time);
             }
             catch (Exception e)
             {
@@ -436,7 +481,7 @@ namespace TravianTools.Utils
                     return;
                 }
 
-                Account.Update(data, data.time);
+                Account.Update(data, (long)data.time);
             }
             catch (Exception e)
             {
@@ -456,7 +501,7 @@ namespace TravianTools.Utils
                     return;
                 }
 
-                Account.Update(data, data.time);
+                Account.Update(data, (long)data.time);
             }
             catch (Exception e)
             {

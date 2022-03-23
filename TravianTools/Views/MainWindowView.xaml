@@ -111,7 +111,14 @@
             </Grid>
             <!-- Main -->
             <Grid Grid.Column="1">
-                <ContentControl Content="{Binding Source={x:Static travianTools:g.Accounts}, Path=SelectedAccount.Driver.Host}" Visibility="{Binding ShowData, Converter={StaticResource BoolToVisibilityReverseConverter}}"/>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <ContentControl Grid.Row="0" Content="{Binding Source={x:Static travianTools:g.Accounts}, Path=SelectedAccount.Driver.Host}" Visibility="{Binding ShowData, Converter={StaticResource BoolToVisibilityReverseConverter}}"/>
+                <Grid Grid.Row="1">
+                    <TextBlock Text="{Binding Source={x:Static travianTools:g.Accounts}, Path=SelectedAcecount.Status}"></TextBlock>
+                </Grid>
                 <!--<Grid Visibility="{Binding ShowData, Converter={StaticResource BoolToVisibilityConverter}}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="400"/>

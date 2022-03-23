@@ -14,6 +14,8 @@ namespace TravianTools.TravianCommands
     {
         public int VillageId  { get; set; }
         public int LocationId { get; set; }
+        //разобрать сразу
+
 
         public BuildingDestroyCmd() : base(null)
         {
@@ -33,7 +35,7 @@ namespace TravianTools.TravianCommands
                 VillageId = Account.Player.VillageList[Math.Abs(VillageId)].Id;
             }
 
-            Http.Post(RPG.BuildingDestroy(Account.Session, VillageId, LocationId));
+            //Http.Post(RPG.BuildingDestroy(Account.Session, VillageId, LocationId));
         }
     }
 }

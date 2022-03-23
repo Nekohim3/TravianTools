@@ -121,19 +121,7 @@ namespace TravianTools.Data
             if (data == null && time == -1)
             {
                 Logger.Info($"[{Account.Name}]: Player update load data");
-                data = Account.Driver.GetCache_Player(Account.PlayerId);
-                if (data == null)
-                {
-                    Logger.Info($"[{Account.Name}]: Player update load data FAILED");
-                    return;
-                }
-                time = data.time;
-                data = TRequest.GetDataByName(data.cache, "Player:");
-            }
-
-            if (data == null)
-            {
-                Logger.Info($"[{Account.Name}]: Player update data ERROR");
+                Account.Driver.GetCache_Player(Account.PlayerId);
                 return;
             }
 
@@ -154,19 +142,7 @@ namespace TravianTools.Data
             if (data == null && time == -1)
             {
                 Logger.Info($"[{Account.Name}]: QuestList update load data");
-                data = TRequest.GetCache_Quest(Account.Session);
-                if (data == null)
-                {
-                    Logger.Info($"[{Account.Name}]: QuestList update load data FAILED");
-                    return;
-                }
-                time = data.time;
-                data = TRequest.GetDataByName(data.cache, "Collection:Quest:<>");
-            }
-
-            if (data == null)
-            {
-                Logger.Info($"[{Account.Name}]: QuestList update data ERROR");
+                Account.Driver.GetCache_Quest();
                 return;
             }
 
@@ -183,19 +159,7 @@ namespace TravianTools.Data
             if (data == null && time == -1)
             {
                 Logger.Info($"[{Account.Name}]: VillageList update load data");
-                data = TRequest.GetCache_VillageList(Account.Session);
-                if (data == null)
-                {
-                    Logger.Info($"[{Account.Name}]: VillageList update load data FAILED");
-                    return;
-                }
-                time = data.time;
-                data = TRequest.GetDataByName(data.cache, "Collection:Village:own");
-            }
-
-            if (data == null)
-            {
-                Logger.Info($"[{Account.Name}]: VillageList update data ERROR");
+                Account.Driver.GetCache_VillageList();
                 return;
             }
 

@@ -175,19 +175,7 @@ namespace TravianTools.Data
             if (data == null && time == -1)
             {
                 Logger.Info($"[{Account.Name}:{Name}]: BuildingList update load data");
-                data = TRequest.GetCache_BuildingCollection(Account.Session, Id);
-                if (data == null)
-                {
-                    Logger.Info($"[{Account.Name}:{Name}]: BuildingList update load data FAILED");
-                    return;
-                }
-                time = data.time;
-                data = TRequest.GetDataByName(data.cache, $"Collection:Building:{Id}");
-            }
-
-            if (data == null)
-            {
-                Logger.Info($"[{Account.Name}:{Name}]: BuildingList update data ERROR");
+                Account.Driver.GetCache_BuildingCollection(Id);
                 return;
             }
 
@@ -214,19 +202,7 @@ namespace TravianTools.Data
             if (data == null && time == -1)
             {
                 Logger.Info($"[{Account.Name}:{Name}]: BuildingQueue update load data");
-                data = TRequest.GetCache_BuildingQueue(Account.Session, Id);
-                if (data == null)
-                {
-                    Logger.Info($"[{Account.Name}:{Name}]: BuildingQueue update load data FAILED");
-                    return;
-                }
-                time = data.time;
-                data = TRequest.GetDataByName(data.cache, $"BuildingQueue:{Id}");
-            }
-
-            if (data == null)
-            {
-                Logger.Info($"[{Account.Name}:{Name}]: BuildingQueue update data ERROR");
+                Account.Driver.GetCache_BuildingQueue(Id);
                 return;
             }
 
@@ -240,19 +216,7 @@ namespace TravianTools.Data
             if (data == null && time == -1)
             {
                 Logger.Info($"[{Account.Name}:{Name}]: MovingTroops update load data");
-                data = TRequest.GetCache_MovingTroopsCollection(Account.Session, Id);
-                if (data == null)
-                {
-                    Logger.Info($"[{Account.Name}:{Name}]: MovingTroops update load data FAILED");
-                    return;
-                }
-                time = data.time;
-                data = TRequest.GetDataByName(data.cache, $"Collection:Troops:moving:{Id}");
-            }
-
-            if (data == null)
-            {
-                Logger.Info($"[{Account.Name}:{Name}]: MovingTroops update data ERROR");
+                Account.Driver.GetCache_MovingTroopsCollection(Id);
                 return;
             }
 
@@ -274,19 +238,7 @@ namespace TravianTools.Data
             if (data == null && time == -1)
             {
                 Logger.Info($"[{Account.Name}:{Name}]: StationaryTroops update load data");
-                data = TRequest.GetCache_StationaryTroopsCollection(Account.Session, Id);
-                if (data == null)
-                {
-                    Logger.Info($"[{Account.Name}:{Name}]: StationaryTroops update load data FAILED");
-                    return;
-                }
-                time = data.time;
-                data = TRequest.GetDataByName(data.cache, $"Collection:Troops:stationary:{Id}");
-            }
-
-            if (data == null)
-            {
-                Logger.Info($"[{Account.Name}:{Name}]: StationaryTroops update data ERROR");
+                Account.Driver.GetCache_StationaryTroopsCollection(Id);
                 return;
             }
 
@@ -308,19 +260,7 @@ namespace TravianTools.Data
             if (data == null && time == -1)
             {
                 Logger.Info($"[{Account.Name}:{Name}]: Village update load data");
-                data = TRequest.GetCache_Building(Account.Session, Id);
-                if (data == null)
-                {
-                    Logger.Info($"[{Account.Name}:{Name}]: Village update load data FAILED");
-                    return;
-                }
-                time = data.time;
-                data = TRequest.GetDataByName(data.cache, $"Village:{Id}");
-            }
-
-            if (data == null)
-            {
-                Logger.Info($"[{Account.Name}:{Name}]: Village update data ERROR");
+                Account.Driver.GetCache_Building(Id);
                 return;
             }
 

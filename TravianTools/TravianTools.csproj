@@ -107,6 +107,7 @@
     <Compile Include="TravianCommands\SetVillageNameCmd.cs" />
     <Compile Include="TravianCommands\TradeCmd.cs" />
     <Compile Include="TravianCommands\UseHeroItem.cs" />
+    <Compile Include="TravianUtils\FreeInstantBuild.cs" />
     <Compile Include="TravianUtils\Http.cs" />
     <Compile Include="TravianUtils\MapSolver.cs" />
     <Compile Include="TravianUtils\RPG.cs" />

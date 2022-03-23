@@ -28,7 +28,7 @@ namespace TravianTools.TravianCommands
 
         public override void Execute()
         {
-            Http.Post(RPG.SetVillageName(Account.Session, VillageId, VillageName));
+            //Http.Post(RPG.SetVillageName(Account.Session, VillageId, VillageName));
         }
     }
 }

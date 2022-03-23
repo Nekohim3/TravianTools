@@ -32,7 +32,7 @@ namespace TravianTools.TravianCommands
 
         public override void Execute()
         {
-            Http.Post(RPG.DialogAction(Account.Session, QuestId, DialogId, Command, Input));
+            //Http.Post(RPG.DialogAction(Account.Session, QuestId, DialogId, Command, Input));
         }
     }
 }

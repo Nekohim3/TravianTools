@@ -34,7 +34,7 @@ namespace TravianTools.TravianCommands
 
         public override void Execute()
         {
-            Http.Post(RPG.NpcTrade(Account.Session, VillageId, R1, R2, R3, R4));
+            //Http.Post(RPG.NpcTrade(Account.Session, VillageId, R1, R2, R3, R4));
         }
     }
 }

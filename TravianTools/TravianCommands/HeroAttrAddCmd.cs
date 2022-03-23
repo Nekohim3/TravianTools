@@ -34,7 +34,7 @@ namespace TravianTools.TravianCommands
 
         public override void Execute()
         {
-            Http.Post(RPG.HeroAttribute(Account.Session, FightStrengthPoints, AttBonusPoints, DefBonusPoints, ResBonusPoints, ResBonusType));
+            //Http.Post(RPG.HeroAttribute(Account.Session, FightStrengthPoints, AttBonusPoints, DefBonusPoints, ResBonusPoints, ResBonusType));
         }
     }
 }

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.Practices.Prism.ViewModel;
 using Newtonsoft.Json.Linq;
 using TravianTools.TravianUtils;
+using TravianTools.Utils;
 
 namespace TravianTools.Data
 {
@@ -116,15 +117,14 @@ namespace TravianTools.Data
 
         public void Update(dynamic data = null, long time = -1)
         {
+            Logger.Info($"[{Account.Name}]: Hero update start");
             if (data == null && time == -1)
             {
-                data = TRequest.GetCache_Hero(Account.Session, Account.PlayerId);
-                if (data == null) return;
-                time = data.time;
-                data = TRequest.GetDataByName(data.cache, "Hero:");
+                Logger.Info($"[{Account.Name}]: Hero update load data");
+                Account.Driver.GetCache_Hero(Account.PlayerId);
+                return;
             }
-
-            if (data == null) return;
+            
             AdventurePoints = data.data.adventurePoints;
             FreePoints      = data.data.freePoints;
             Health          = data.data.health;
@@ -134,16 +134,18 @@ namespace TravianTools.Data
 
             UpdateTime      = DateTime.Now;
             UpdateTimeStamp = time;
+
+            Logger.Info($"[{Account.Name}]: Hero update SUCC");
         }
 
         public void UpdateItems(dynamic data = null, long time = -1)
         {
+            Logger.Info($"[{Account.Name}]: HeroItems update start");
             if (data == null && time == -1)
             {
-                data = TRequest.GetCache_CollectionHeroItemOwn(Account.Session);
-                if (data == null) return;
-                time = data.time;
-                data = TRequest.GetDataByName(data.cache, "Collection:HeroItem:own");
+                Logger.Info($"[{Account.Name}]: HeroItems update load data");
+                Account.Driver.GetCache_CollectionHeroItemOwn();
+                return;
             }
 
             if(data == null) return;
@@ -157,6 +159,8 @@ namespace TravianTools.Data
                                        x.data.slot,
                                        x.data.images[0].ToString().IndexOf("horse") != -1,
                                        time));
+
+            Logger.Info($"[{Account.Name}]: HeroItems update SUCC");
         }
 
         public bool HasBuildItem => Items.Count(x => x.ItemType == 138) != 0;

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Practices.Prism.ViewModel;
 using TravianTools.TravianUtils;
+using TravianTools.Utils;
 
 namespace TravianTools.Data
 {
@@ -136,15 +137,12 @@ namespace TravianTools.Data
 
         public void Update(dynamic data = null, long time = -1)
         {
+            Logger.Info($"[{Account.Name}:{Village.Name}.{Id}]: Building update start");
             if (data == null && time == -1)
             {
-                data = TRequest.GetCache_Building(Account.Session, Id);
-                if (data == null) return;
-                time = data.time;
-                data = TRequest.GetDataByName(data, $"Building:{Id}");
+                Logger.Info($"[{Account.Name}:{Village.Name}.{Id}]: Building update load data");
+                Account.Driver.GetCache_Building(Id);
             }
-
-            if (data == null) return;
 
             Id           = Convert.ToInt32(data.name.ToString().Split(':')[1]);
             BuildingType = Convert.ToInt32(data.data.buildingType);
@@ -163,6 +161,7 @@ namespace TravianTools.Data
             UpdateTime      = DateTime.Now;
             UpdateTimeStamp = time;
 
+            Logger.Info($"[{Account.Name}:{Village.Name}.{Id}]: Building update SUCC");
         }
 
         public Building(int buildingType, int locationId)
