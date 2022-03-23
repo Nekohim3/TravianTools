@@ -80,6 +80,7 @@
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto"/>
                                                 <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
                                             <Border Grid.ColumnSpan="2" x:Name="BorderForSelect" Background="{StaticResource {x:Static SystemColors.HighlightBrushKey}}" Visibility="Collapsed"/>
                                             <TextBlock Grid.Column="1" Text="{Binding Name}" Margin="2,0,0,0"/>
@@ -117,7 +118,12 @@
                 </Grid.RowDefinitions>
                 <ContentControl Grid.Row="0" Content="{Binding Source={x:Static travianTools:g.Accounts}, Path=SelectedAccount.Driver.Host}" Visibility="{Binding ShowData, Converter={StaticResource BoolToVisibilityReverseConverter}}"/>
                 <Grid Grid.Row="1">
-                    <TextBlock Text="{Binding Source={x:Static travianTools:g.Accounts}, Path=SelectedAcecount.Status}"></TextBlock>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="250"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="{Binding Source={x:Static travianTools:g.Accounts}, Path=SelectedAccount.Status}"/>
+                    <CheckBox Grid.Column="1" IsChecked="{Binding Source={x:Static travianTools:g.Accounts}, Path=SelectedAccount.UseFastBuilding}" Content="Использовать быструю постройку"/>
                 </Grid>
                 <!--<Grid Visibility="{Binding ShowData, Converter={StaticResource BoolToVisibilityConverter}}">
                     <Grid.ColumnDefinitions>

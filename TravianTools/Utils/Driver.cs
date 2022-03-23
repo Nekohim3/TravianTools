@@ -67,8 +67,6 @@ namespace TravianTools.Utils
                                                   });
 
             Logger.Info($"[{Account.Name}]: End driver initialization");
-
-            Account.Running = true;
         }
 
         public void DeInit()
@@ -82,8 +80,10 @@ namespace TravianTools.Utils
             Chrome  = null;
             Options = null;
             Service.Dispose();
-            Service         = null;
-            Account.Running = false;
+            Service                            = null;
+            Account.Running                    = false;
+            Account.FreeInstantBuilder.Working = false;
+            Account.FreeInstantBuilder         = null;
             Logger.Info($"[{Account.Name}]: End driver deinitialization");
             Account         = null;
         }
@@ -204,7 +204,7 @@ namespace TravianTools.Utils
         {
             Logger.Info($"[{Account.Name}]: BuildingUpgrade ({villageId}, {locationId}, {buildingType})");
             try
-            {   
+            {
                 var data = JObject.Parse(Post(RPG.BuildingUpgrade(GetSession(), villageId, locationId, buildingType))) as dynamic;
                 if (data == null || data.cache == null || data.cache.Count == 0 || data.time == null)
                 {
@@ -219,6 +219,28 @@ namespace TravianTools.Utils
                 Logger.Info($"[{Account.Name}]: BuildingUpgrade ({villageId}, {locationId}, {buildingType}) Update FAILED with exception:\n{e}\n{e.InnerException}\n{e.InnerException?.InnerException}");
             }
         }
+
+        public void FinishNow(int villageId, int queueType, int price)
+        {
+            Logger.Info($"[{Account.Name}]: FinishNow ({villageId}, {queueType}, {price})");
+            try
+            {
+                var data = JObject.Parse(Post(RPG.FinishBuild(GetSession(), villageId, price, queueType))) as dynamic;
+                if (data == null || data.cache == null || data.cache.Count == 0 || data.time == null)
+                {
+                    Logger.Info($"[{Account.Name}]: FinishNow ({villageId}, {queueType}, {price}) Update FAILED");
+                    return;
+                }
+
+                Account.Update(data, (long)data.time);
+            }
+            catch (Exception e)
+            {
+                Logger.Info($"[{Account.Name}]: FinishNow ({villageId}, {queueType}, {price}) Update FAILED with exception:\n{e}\n{e.InnerException}\n{e.InnerException?.InnerException}");
+            }
+        }
+
+
 
         public void SolvePuzzle(JArray moves)
         {

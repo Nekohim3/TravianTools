@@ -17,12 +17,12 @@ namespace TravianTools.TravianCommands
         //разобрать сразу
 
 
-        public BuildingDestroyCmd() : base(null)
+        public BuildingDestroyCmd() : base(null, typeof(BuildingDestroyCmd))
         {
             
         }
 
-        public BuildingDestroyCmd(Account acc, int villageId, int locationId) : base(acc)
+        public BuildingDestroyCmd(Account acc, int villageId, int locationId) : base(acc, typeof(BuildingDestroyCmd))
         {
             VillageId = villageId;
             LocationId = locationId;

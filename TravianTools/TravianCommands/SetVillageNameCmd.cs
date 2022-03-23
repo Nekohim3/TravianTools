@@ -15,12 +15,12 @@ namespace TravianTools.TravianCommands
         public int    VillageId   { get; set; }
         public string VillageName { get; set; }
 
-        public SetVillageNameCmd() : base(null)
+        public SetVillageNameCmd() : base(null, typeof(SetVillageNameCmd))
         {
             
         }
 
-        public SetVillageNameCmd(Account acc, int villageId, string name) : base(acc)
+        public SetVillageNameCmd(Account acc, int villageId, string name) : base(acc, typeof(SetVillageNameCmd))
         {
             VillageId  = villageId;
             VillageName = name;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 using Newtonsoft.Json.Linq;
 using TravianTools.Data;
 using TravianTools.TravianUtils;
@@ -12,9 +13,10 @@ namespace TravianTools.TravianCommands
     [Serializable]
     public class BuildingUpgradeCmd : ResourceCommand
     {
-        public int VillageId       {get;set;}
-        public int LocationId      {get;set;}
+        public int VillageId    { get; set; }
+        public int LocationId   { get; set; }
         public int BuildingType { get; set; }
+
         //Использовать нпц обмен
             //остальные ресы
                 //поровну
@@ -24,12 +26,12 @@ namespace TravianTools.TravianCommands
                 //
                 //
 
-        public BuildingUpgradeCmd() : base(null)
+        public BuildingUpgradeCmd() : base(null, typeof(BuildingUpgradeCmd))
         {
             
         }
 
-        public BuildingUpgradeCmd(Account acc, int villageId, int locationId, int buildingType) : base(acc)
+        public BuildingUpgradeCmd(Account acc, int villageId, int locationId, int buildingType) : base(acc, typeof(BuildingUpgradeCmd))
         {
             VillageId    = villageId;
             LocationId   = locationId;
@@ -49,12 +51,6 @@ namespace TravianTools.TravianCommands
             Account.Driver.BuildingUpgrade(VillageId, LocationId, BuildingType);
         }
     }
-
-    public abstract class ResourceCommand : BaseCommand
-    {
-        protected ResourceCommand(Account account) : base(account)
-        {
-
-        }
-    }
+    
+    
 }

@@ -19,12 +19,12 @@ namespace TravianTools.TravianCommands
         public int SearchedAmount   {get;set;}
         public bool KingdomOnly { get; set; }
 
-        public TradeCmd() : base(null)
+        public TradeCmd() : base(null, typeof(TradeCmd))
         {
             
         }
 
-        public TradeCmd(Account acc, int villageId, int offeredResource, int offeredAmount, int searchedResource, int searchedAmount, bool kingdomOnly) : base(acc)
+        public TradeCmd(Account acc, int villageId, int offeredResource, int offeredAmount, int searchedResource, int searchedAmount, bool kingdomOnly) : base(acc, typeof(TradeCmd))
         {
             VillageId        = villageId;
             OfferedResource  = offeredResource;

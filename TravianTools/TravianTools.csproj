@@ -98,12 +98,15 @@
     <Compile Include="SeleniumHost\SeleniumHostWPF.xaml.cs">
       <DependentUpon>SeleniumHostWPF.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Task\TemplateTaskList.cs" />
+    <Compile Include="Task\TemplateTask.cs" />
+    <Compile Include="Task\TemplateTaskListCollection.cs" />
     <Compile Include="TravianCommands\BaseCommand.cs" />
     <Compile Include="TravianCommands\BuildingDestroyCmd.cs" />
     <Compile Include="TravianCommands\BuildingUpgradeCmd.cs" />
     <Compile Include="TravianCommands\DialogActionCmd.cs" />
     <Compile Include="TravianCommands\HeroAttrAddCmd.cs" />
-    <Compile Include="TravianCommands\NptTradeCmd.cs" />
+    <Compile Include="TravianCommands\NpcTradeCmd.cs" />
     <Compile Include="TravianCommands\SetVillageNameCmd.cs" />
     <Compile Include="TravianCommands\TradeCmd.cs" />
     <Compile Include="TravianCommands\UseHeroItem.cs" />
@@ -118,6 +121,7 @@
     <Compile Include="Utils\Settings.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="ViewModels\SettingsServerViewModel.cs" />
+    <Compile Include="ViewModels\TemplateTaskListViewModel.cs" />
     <Compile Include="Views\MainWindowView.xaml.cs">
       <DependentUpon>MainWindowView.xaml</DependentUpon>
     </Compile>
@@ -134,6 +138,9 @@
     <Compile Include="Data\Resource.cs" />
     <Compile Include="Data\StaticData\BuildingData.cs" />
     <Compile Include="Data\Village.cs" />
+    <Compile Include="Views\TemplateTaskListView.xaml.cs">
+      <DependentUpon>TemplateTaskListView.xaml</DependentUpon>
+    </Compile>
     <Page Include="SeleniumHost\SeleniumHostWPF.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -143,6 +150,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\ServerSettingsView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\TemplateTaskListView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

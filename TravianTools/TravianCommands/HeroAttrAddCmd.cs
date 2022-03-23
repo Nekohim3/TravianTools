@@ -18,12 +18,12 @@ namespace TravianTools.TravianCommands
         public int ResBonusPoints       {get;set;}
         public int ResBonusType { get; set; }
 
-        public HeroAttrAddCmd() : base(null)
+        public HeroAttrAddCmd() : base(null, typeof(HeroAttrAddCmd))
         {
             
         }
 
-        public HeroAttrAddCmd(Account acc, int fightStrengthPoints, int attBonusPoints, int defBonusPoints, int resBonusPoints, int resBonusType) : base(acc)
+        public HeroAttrAddCmd(Account acc, int fightStrengthPoints, int attBonusPoints, int defBonusPoints, int resBonusPoints, int resBonusType) : base(acc, typeof(HeroAttrAddCmd))
         {
             FightStrengthPoints = fightStrengthPoints;
             AttBonusPoints      = attBonusPoints;

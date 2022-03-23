@@ -1,0 +1,62 @@
+﻿<Window x:Class="TravianTools.Views.TemplateTaskListView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TravianTools.Views"
+        xmlns:viewModels="clr-namespace:TravianTools.ViewModels"
+        mc:Ignorable="d" WindowStartupLocation="CenterScreen" d:DataContext="{d:DesignInstance viewModels:TemplateTaskListViewModel}"
+        Title="TaskListTemplateView" Height="720" Width="1280">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="200"/>
+        </Grid.ColumnDefinitions>
+        <!-- Список шаблонов -->
+        <Grid Grid.Column="0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="10"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" HorizontalAlignment="Center" Text="Список задачников"/>
+                <ListView Grid.Row="1" ItemsSource="{Binding TaskListCollection.TaskListList}" SelectedItem="{Binding TaskListCollection.SelectedTaskList}"/>
+                <Button Grid.Row="2" Command="{Binding AddTaskListCmd}" Content="Добавить" Margin="2"/>
+                <Button Grid.Row="3" Command="{Binding EditTaskListCmd}" Content="Редактировать" Margin="2"/>
+                <Button Grid.Row="4" Command="{Binding RemoveTaskListCmd}" Content="Удалить" Margin="2"/>
+                <Button Grid.Row="6" Command="{Binding ExportTaskListCmd}" Content="Экспорт" Margin="2"/>
+                <Button Grid.Row="7" Command="{Binding ImportTaskListCmd}" Content="Импорт" Margin="2"/>
+            </Grid>
+        </Grid>
+        <Grid Grid.Column="1">
+
+        </Grid>
+        <!-- Список задач -->
+        <Grid Grid.Column="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="10"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Row="0" HorizontalAlignment="Center" Text="Список задач"/>
+            <ListView Grid.Row="1" ItemsSource="{Binding TaskListCollection.SelectedTaskList.TaskList}" SelectedItem="{Binding TaskListCollection.SelectedTaskList.SelectedTask}"/>
+            <Button Grid.Row="2" Command="{Binding AddTaskCmd}" Content="Выше" Margin="2"/>
+            <Button Grid.Row="3" Command="{Binding AddTaskCmd}" Content="Ниже" Margin="2"/>
+            <Button Grid.Row="5" Command="{Binding AddTaskCmd}" Content="Добавить" Margin="2"/>
+            <Button Grid.Row="6" Command="{Binding EditTaskCmd}" Content="Редактировать" Margin="2"/>
+            <Button Grid.Row="7" Command="{Binding RemoveTaskCmd}" Content="Удалить" Margin="2"/>
+        </Grid>
+    </Grid>
+</Window>

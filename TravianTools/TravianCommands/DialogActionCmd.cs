@@ -17,12 +17,12 @@ namespace TravianTools.TravianCommands
         public string Command    {get;set;}
         public string Input { get; set; }
 
-        public DialogActionCmd() : base(null)
+        public DialogActionCmd() : base(null, typeof(DialogActionCmd))
         {
             
         }
 
-        public DialogActionCmd(Account acc, int questId, int dialogId, string command, string input = "") : base(acc)
+        public DialogActionCmd(Account acc, int questId, int dialogId, string command, string input = "") : base(acc, typeof(DialogActionCmd))
         {
             QuestId    = questId;
             DialogId   = dialogId;

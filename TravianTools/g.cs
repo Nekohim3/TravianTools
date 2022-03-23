@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Xml.Serialization;
 using Microsoft.Practices.Prism.ViewModel;
+using Newtonsoft.Json;
 using TravianTools.Data;
 using TravianTools.Utils;
 using TravianTools.ViewModels;
@@ -53,7 +54,7 @@ namespace TravianTools
         }
 
         private Account _selectedAccount;
-        [XmlIgnore]
+        [JsonIgnore]
         public Account SelectedAccount
         {
             get => _selectedAccount;
@@ -88,19 +89,14 @@ namespace TravianTools
 
         public static void Save()
         {
-            var formatter = new XmlSerializer(typeof(Accounts));
-
-            using (var fs = new FileStream($"{g.Settings.UserDataPath}\\Accounts.xml", FileMode.Create))
-                formatter.Serialize(fs, g.Accounts);
+            File.WriteAllText($"{g.Settings.UserDataPath}\\Accounts", JsonConvert.SerializeObject(g.Accounts, Formatting.Indented));
         }
 
         public static void Load()
         {
-            if (File.Exists($"{g.Settings.UserDataPath}\\Accounts.xml"))
+            if (File.Exists($"{g.Settings.UserDataPath}\\Accounts"))
             {
-                var formatter = new XmlSerializer(typeof(Accounts));
-                using (var fs = new FileStream($"{g.Settings.UserDataPath}\\Accounts.xml", FileMode.Open, FileAccess.Read))
-                    g.Accounts = (Accounts)formatter.Deserialize(fs);
+                g.Accounts = JsonConvert.DeserializeObject<Accounts>(File.ReadAllText($"{g.Settings.UserDataPath}\\Accounts"));
             }
             else
             {

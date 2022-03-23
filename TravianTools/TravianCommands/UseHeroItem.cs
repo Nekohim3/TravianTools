@@ -15,12 +15,13 @@ namespace TravianTools.TravianCommands
         public int Amount    { get; set; }
         public int Id        { get; set; }
         public int VillageId { get; set; }
-        public UseHeroItem() : base(null)
+
+        public UseHeroItem() : base(null, typeof(TradeCmd))
         {
 
         }
 
-        public UseHeroItem(Account acc, int amount, int id, int villageId) : base(acc)
+        public UseHeroItem(Account acc, int amount, int id, int villageId) : base(acc, typeof(TradeCmd))
         {
             Amount    = amount;
             Id        = id;

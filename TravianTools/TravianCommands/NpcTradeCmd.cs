@@ -18,12 +18,12 @@ namespace TravianTools.TravianCommands
         public int R3         {get;set;}
         public int R4 { get; set; }
 
-        public NpcTradeCmd() : base(null)
+        public NpcTradeCmd() : base(null, typeof(NpcTradeCmd))
         {
             
         }
 
-        public NpcTradeCmd(Account acc, int villageId, int r1, int r2, int r3, int r4) : base(acc)
+        public NpcTradeCmd(Account acc, int villageId, int r1, int r2, int r3, int r4) : base(acc, typeof(NpcTradeCmd))
         {
             VillageId = villageId;
             R1 = r1;
