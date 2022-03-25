@@ -8,12 +8,20 @@
         xmlns:bdata="clr-namespace:TravianTools.Data.StaticData"
         xmlns:cmdType="clr-namespace:TravianTools.TravianCommands"
         mc:Ignorable="d" WindowStartupLocation="CenterScreen" d:DataContext="{d:DesignInstance viewModels:TemplateTaskListViewModel}"
-        Title="TaskListTemplateView" Height="720" Width="1280">
+        Title="TaskListTemplateView" Height="720" Width="1280" x:Name="Root">
+    <Window.Resources>
+        <viewModels:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <viewModels:CmdTypeIdToVisibilityConverter x:Key="CmdTypeIdToVisibilityConverter"/>
+        <viewModels:ObjIsNullToVisibilityConverter x:Key="ObjIsNullToVisibilityConverter"/>
+        <viewModels:ObjIsNullToVisibilityReverseConverter x:Key="ObjIsNullToVisibilityReverseConverter"/>
+        <viewModels:ObjIsNullToBoolReverseConverter x:Key="ObjIsNullToBoolReverseConverter"/>
+    </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="200"/>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="400"/>
+            <ColumnDefinition Width="5"/>
+            <ColumnDefinition Width="300"/>
         </Grid.ColumnDefinitions>
         <!-- Список шаблонов -->
         <Grid Grid.Column="0">
@@ -44,7 +52,7 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Grid Grid.Row="0">
-                <GroupBox Header="Задачник" Margin="0,7,0,0">
+                <GroupBox Header="Задачник" Margin="0,7,0,0" IsEnabled="{Binding TempTaskListEditVM.IsEdit}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -65,7 +73,9 @@
                 </GroupBox>
             </Grid>
             <Grid Grid.Row="1">
-                <GroupBox Header="Задача">
+                <GroupBox Header="{Binding TempTaskEditVM.CurrentTask.CommandString}" 
+                          Visibility="{Binding TempTaskEditVM.CurrentTask, Converter={StaticResource ObjIsNullToVisibilityReverseConverter}}"
+                          IsEnabled="{Binding TempTaskEditVM.IsEdit}">
                     <Grid DataContext="{Binding TempTaskEditVM}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -75,16 +85,23 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         <!-- параметры комманды -->
                         <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3">
                             <!-- Building upgrade -->
-                            <Grid >
+                            <Grid Visibility="Collapsed">
+                                <!--Visibility="{Binding CurrentTask.CommandType.Id, Converter={StaticResource CmdTypeIdToVisibilityConverter}, ConverterParameter=0}"-->
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
                                 <Grid.ColumnDefinitions>
@@ -98,6 +115,7 @@
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto"/>
@@ -106,15 +124,91 @@
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Row="0" Grid.Column="0" Text="Деревня" Margin="5"/>
                                     <ComboBox Grid.Row="0" Grid.Column="1" Width="200" 
-                                              ItemsSource="{Binding NonExistVillageList}" DisplayMemberPath="Name"
+                                              ItemsSource="{Binding Source={x:Static bdata:NonExitsVillagesData.VillageList}}" DisplayMemberPath="Name"  Margin="2"
                                               SelectedValue="{Binding Path=CurrentTask.Command.VillageId}" SelectedValuePath="Id"/>
                                     <TextBlock Grid.Row="1" Grid.Column="0" Text="Здание" Margin="5"/>
                                     <ComboBox Grid.Row="1" Grid.Column="1" Width="200" 
-                                              ItemsSource="{Binding Source={x:Static bdata:BuildingsData.BuildingList}}" DisplayMemberPath="Name"
-                                              SelectedValue="{Binding Path=CurrentTask.BuildingType}" SelectedValuePath="Id"/>
+                                              ItemsSource="{Binding Source={x:Static bdata:BuildingsData.BuildingList}}" DisplayMemberPath="Name"  Margin="2"
+                                              SelectedValue="{Binding Path=CurrentTask.Command.BuildingType}" SelectedValuePath="Id"/>
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Id локации (1-45)" Margin="5"/>
+                                    <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding CurrentTask.Command.LocationId, UpdateSourceTrigger=PropertyChanged}" Height="20" VerticalAlignment="Top" Margin="2"/>
+                                    <TextBlock Grid.Row="2" Grid.Column="2" Margin="2">
+                                        Для деревни можно ввести 0,<LineBreak/>тогда бот попытается найти здание, если оно построено.<LineBreak/>Если не найдет - остановится
+                                    </TextBlock>
+                                    <CheckBox Grid.Row="3" Grid.Column="1" Content="Использовать NPC торговца" Margin="2" IsChecked="{Binding CurrentTask.Command.UseNpc}"/>
+                                </Grid>
+                                <Grid Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Image Grid.Column="0" Source="../Data/StaticData/res.png" Stretch="Fill"/>
+                                    <Image Grid.Column="1" Source="../Data/StaticData/inner.png" Stretch="Fill"/>
                                 </Grid>
 
                             </Grid>
+                            <Grid Visibility="{Binding CurrentTask.CommandType.Id, Converter={StaticResource CmdTypeIdToVisibilityConverter}, ConverterParameter=1}">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid Grid.Row="0" Grid.Column="0">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Деревня" Margin="5"/>
+                                    <ComboBox Grid.Row="0" Grid.Column="1" Width="200" 
+                                              ItemsSource="{Binding Source={x:Static bdata:NonExitsVillagesData.VillageList}}" DisplayMemberPath="Name"  Margin="2"
+                                              SelectedValue="{Binding Path=CurrentTask.Command.VillageId}" SelectedValuePath="Id"/>
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Здание" Margin="5"/>
+                                    <ComboBox Grid.Row="1" Grid.Column="1" Width="200" 
+                                              ItemsSource="{Binding Source={x:Static bdata:BuildingsData.BuildingList}}" DisplayMemberPath="Name"  Margin="2"
+                                              SelectedValue="{Binding Path=CurrentTask.Command.BuildingType}" SelectedValuePath="Id"/>
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Id локации (1-45)" Margin="5"/>
+                                    <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding CurrentTask.Command.LocationId, UpdateSourceTrigger=PropertyChanged}" Height="20" VerticalAlignment="Top" Margin="2"/>
+                                    <TextBlock Grid.Row="2" Grid.Column="2" Margin="2">
+                                        Для деревни можно ввести 0,<LineBreak/>тогда бот попытается найти здание, если оно построено.<LineBreak/>Если не найдет - остановится
+                                    </TextBlock>
+                                    <CheckBox Grid.Row="3" Grid.Column="1" Content="Использовать NPC торговца" Margin="2" IsChecked="{Binding CurrentTask.Command.UseNpc}"/>
+                                </Grid>
+                                <Grid Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2">
+                                    <Image Source="../Data/StaticData/inner.png" Stretch="Fill"/>
+                                </Grid>
+
+                            </Grid>
+                        </Grid>
+                        <!-- кнопки -->
+                        <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="80"/>
+                                <ColumnDefinition Width="80"/>
+                            </Grid.ColumnDefinitions>
+                            <Button Grid.Column="1" Content="Сохранить" Margin="3" Command="{Binding ElementName=Root, Path=DataContext.SaveTaskCmd}"/>
+                            <Button Grid.Column="2" Content="Отмена" Margin="3" Command="{Binding ElementName=Root, Path=DataContext.CancelTaskCmd}"/>
+
                         </Grid>
                     </Grid>
                 </GroupBox>
@@ -127,8 +221,9 @@
                 </Grid.ColumnDefinitions>
             </Grid>
         </Grid>
+        <!--<GridSplitter Grid.Column="2" Background="Red" Width="5" ResizeBehavior="PreviousAndNext"/>-->
         <!-- Список задач -->
-        <Grid Grid.Column="2">
+        <Grid Grid.Column="3">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
@@ -138,21 +233,26 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <TextBlock Grid.Row="0" HorizontalAlignment="Center" Text="Список задач"/>
-            <ListView Grid.Row="1" ItemsSource="{Binding TaskListCollection.TaskListForEdit.TaskList}" SelectedItem="{Binding TaskListCollection.TaskListForEdit.SelectedTask}" DisplayMemberPath="Name"/>
+            <ListView Grid.Row="1" ItemsSource="{Binding TaskList}" DisplayMemberPath="Desc" SelectedItem="{Binding SelectedTask}"/>
             <Button Grid.Row="2" Command="{Binding AddTaskCmd}" Content="Выше" Margin="2"/>
             <Button Grid.Row="3" Command="{Binding AddTaskCmd}" Content="Ниже" Margin="2"/>
-            <Grid Grid.Row="5">
+            <ComboBox Grid.Row="5" Margin="2"
+                      ItemsSource="{Binding Source={x:Static bdata:CommandTypesData.CommandTypeList}}" 
+                      DisplayMemberPath="Name" 
+                      SelectedItem="{Binding SelectedCmdType}" 
+                      IsEnabled="{Binding SelectedTaskList, Converter={StaticResource ObjIsNullToBoolReverseConverter}}"/>
+            <Button Grid.Row="6" Command="{Binding AddTaskCmd}" Content="Добавить" Margin="2"/>
+            <!--<Grid Grid.Row="5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="100"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <Button Grid.Column="0" Command="{Binding AddTaskCmd}" Content="Добавить" Margin="2"/>
-                <ComboBox Grid.Column="1" Margin="2" ItemsSource="{Binding CmdTypeList}" SelectedItem="{Binding SelectedCmdType}"/>
-            </Grid>
-            <Button Grid.Row="6" Command="{Binding EditTaskCmd}" Content="Редактировать" Margin="2"/>
-            <Button Grid.Row="7" Command="{Binding RemoveTaskCmd}" Content="Удалить" Margin="2"/>
+            </Grid>-->
+            <Button Grid.Row="7" Command="{Binding EditTaskCmd}" Content="Редактировать" Margin="2"/>
+            <Button Grid.Row="8" Command="{Binding RemoveTaskCmd}" Content="Удалить" Margin="2"/>
         </Grid>
     </Grid>
 </Window>

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using TravianTools.Data.StaticData;
 using TravianTools.TravianCommands;
 
 namespace TravianTools.Utils.DataBase
@@ -20,13 +21,15 @@ namespace TravianTools.Utils.DataBase
 
         public List<TempTask> GetAll()
         {
-            if (!File.Exists($"{g.Settings.UserDataPath}\\TemplateTaskLCollection"))
+            if (!File.Exists($"{g.Settings.UserDataPath}\\TemplateTaskCollection"))
             {
                 File.WriteAllText($"{g.Settings.UserDataPath}\\TemplateTaskCollection", "[]");
             }
 
-            return JsonConvert.DeserializeObject<List<TempTask>>(File.ReadAllText($"{g.Settings.UserDataPath}\\TemplateTaskCollection"),
+            var lst = JsonConvert.DeserializeObject<List<TempTask>>(File.ReadAllText($"{g.Settings.UserDataPath}\\TemplateTaskCollection"),
                                                                      new JsonSerializerSettings() { Converters = new List<JsonConverter>() { new CommandConverter() } });
+            SetDesc(lst);
+            return lst;
         }
 
         public List<TempTask> GetAllByTaskListId(int id)
@@ -71,6 +74,20 @@ namespace TravianTools.Utils.DataBase
             if (item == null) return;
             lst.RemoveAt(lst.IndexOf(item));
             SaveAll(lst);
+        }
+
+        private void SetDesc(List<TempTask> lst)
+        {
+            foreach (var x in lst)
+            {
+                if (x.Command.Type == typeof(BuildingUpgradeCmd).ToString())
+                {
+                    var cmd = (BuildingUpgradeCmd)x.Command;
+                    x.Desc = $"{CommandTypesData.GetByType(typeof(BuildingUpgradeCmd)).Name} {BuildingsData.GetById(cmd.BuildingType).Name} " +
+                             $"{{{NonExitsVillagesData.VillageList.FirstOrDefault(c => c.Id == cmd.VillageId).Name}; {cmd.LocationId}}}";
+                    x.CommandString = CommandTypesData.GetByType(typeof(BuildingUpgradeCmd)).Name;
+                }
+            }
         }
 
         public void Remove(TempTask tt) => Remove(tt.Id);

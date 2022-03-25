@@ -87,6 +87,8 @@
     <Compile Include="Data\Hero.cs" />
     <Compile Include="Data\HeroItem.cs" />
     <Compile Include="Data\Quest.cs" />
+    <Compile Include="Data\StaticData\CommandTypesData.cs" />
+    <Compile Include="Data\StaticData\NonExitsVillagesData.cs" />
     <Compile Include="Data\Troops.cs" />
     <Compile Include="g.cs" />
     <Compile Include="SeleniumHost\SeleniumHostWF.cs">
@@ -115,6 +117,7 @@
     <Compile Include="TravianUtils\MapSolver.cs" />
     <Compile Include="TravianUtils\RPG.cs" />
     <Compile Include="TravianUtils\TRequest.cs" />
+    <Compile Include="Utils\CryptoRNG.cs" />
     <Compile Include="Utils\DataBase\TempTaskService.cs" />
     <Compile Include="Utils\DataBase\TempTask.cs" />
     <Compile Include="Utils\DataBase\TempTaskList.cs" />
@@ -192,7 +195,10 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Data\StaticData\inner.png" />
+    <Resource Include="Data\StaticData\res.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Selenium.WebDriver.ChromeDriver.99.0.4844.5100\build\Selenium.WebDriver.ChromeDriver.targets" Condition="Exists('..\packages\Selenium.WebDriver.ChromeDriver.99.0.4844.5100\build\Selenium.WebDriver.ChromeDriver.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

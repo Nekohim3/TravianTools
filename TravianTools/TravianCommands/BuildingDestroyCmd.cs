@@ -12,9 +12,53 @@ namespace TravianTools.TravianCommands
     [Serializable]
     public class BuildingDestroyCmd : BaseCommand
     {
-        public int VillageId  { get; set; }
-        public int LocationId { get; set; }
-        //разобрать сразу
+        private int _villageId;
+
+        public int VillageId
+        {
+            get => _villageId;
+            set
+            {
+                _villageId = value;
+                RaisePropertyChanged(() => VillageId);
+            }
+        }
+
+        private int _locationId;
+
+        public int LocationId
+        {
+            get => _locationId;
+            set
+            {
+                _locationId = value;
+                RaisePropertyChanged(() => LocationId);
+            }
+        }
+
+        private int _buildingType;
+
+        public int BuildingType
+        {
+            get => _buildingType;
+            set
+            {
+                _buildingType = value;
+                RaisePropertyChanged(() => BuildingType);
+            }
+        }
+
+        private bool _useNpc;
+
+        public bool UseNpc
+        {
+            get => _useNpc;
+            set
+            {
+                _useNpc = value;
+                RaisePropertyChanged(() => UseNpc);
+            }
+        }
 
 
         public BuildingDestroyCmd() : base(null)
@@ -22,11 +66,14 @@ namespace TravianTools.TravianCommands
             
         }
 
-        public BuildingDestroyCmd(Account acc, int villageId, int locationId) : base(acc)
+        public BuildingDestroyCmd(Account acc, int villageId, int locationId, int buildingType, bool useNpc) : base(acc)
         {
-            VillageId = villageId;
-            LocationId = locationId;
+            VillageId    = villageId;
+            LocationId   = locationId;
+            BuildingType = buildingType;
+            UseNpc       = useNpc;
         }
+
         public override void Execute()
         {
             if (VillageId <= 0)

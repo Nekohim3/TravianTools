@@ -22,6 +22,7 @@ namespace TravianTools
         public static TempTaskListService TempTaskListService { get; set; }
         public static TempTaskService     TempTaskService     { get; set; }
         public static Accounts            Accounts            { get; set; }
+        public static RandomGenerator     Rand                { get; set; }
 
         public static Settings Settings { get; set; }
 
@@ -33,6 +34,7 @@ namespace TravianTools
             Settings            = new Settings();
             TempTaskListService = new TempTaskListService();
             TempTaskService     = new TempTaskService();
+            Rand                = new RandomGenerator();
         }
 
         public static void Shutdown()

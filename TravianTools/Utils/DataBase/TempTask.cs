@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Practices.Prism.ViewModel;
+using Newtonsoft.Json;
+using TravianTools.Data.StaticData;
 using TravianTools.TravianCommands;
 
 namespace TravianTools.Utils.DataBase
@@ -19,6 +21,18 @@ namespace TravianTools.Utils.DataBase
             {
                 _id = value;
                 RaisePropertyChanged(() => Id);
+            }
+        }
+
+        private string _desc;
+        [JsonIgnore]
+        public string Desc
+        {
+            get => _desc;
+            set
+            {
+                _desc = value;
+                RaisePropertyChanged(() => Desc);
             }
         }
 
@@ -43,6 +57,30 @@ namespace TravianTools.Utils.DataBase
             {
                 _command = value;
                 RaisePropertyChanged(() => Command);
+            }
+        }
+
+        private string _commandString;
+        [JsonIgnore]
+        public string CommandString
+        {
+            get => _commandString;
+            set
+            {
+                _commandString = value;
+                RaisePropertyChanged(() => CommandString);
+            }
+        }
+
+        private CommandType _commandType;
+        [JsonIgnore]
+        public CommandType CommandType
+        {
+            get => _commandType;
+            set
+            {
+                _commandType = value;
+                RaisePropertyChanged(() => CommandType);
             }
         }
     }

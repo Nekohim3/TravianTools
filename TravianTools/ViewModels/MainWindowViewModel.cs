@@ -126,8 +126,8 @@ namespace TravianTools.ViewModels
 
         private void OnTestUpdateCmd()
         {
-            var cmd = new BuildingUpgradeCmd(g.Accounts.SelectedAccount, 0, 25, 17) as BaseCommand;
-            cmd.Execute();
+            //var cmd = new BuildingUpgradeCmd(g.Accounts.SelectedAccount, 0, 25, 17) as BaseCommand;
+            //cmd.Execute();
             //g.Accounts.SelectedAccount.UpdateAll();
         }
 
@@ -253,6 +253,38 @@ namespace TravianTools.ViewModels
             throw new NotImplementedException();
         }
     }
+
+    [ValueConversion(typeof(object), typeof(bool))]
+    public class ObjIsNullToBoolReverseConverter : IValueConverter
+    {
+        public object Convert(object                           value, Type targetType, object parameter,
+                              System.Globalization.CultureInfo culture)
+        {
+            return value != null;
+        }
+
+        public object ConvertBack(object                           value, Type targetType, object parameter,
+                                  System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    [ValueConversion(typeof(object), typeof(bool))]
+    public class ObjIsNullToBoolConverter : IValueConverter
+    {
+        public object Convert(object                           value, Type targetType, object parameter,
+                              System.Globalization.CultureInfo culture)
+        {
+            return value == null;
+        }
+
+        public object ConvertBack(object                           value, Type targetType, object parameter,
+                                  System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
     [ValueConversion(typeof(bool), typeof(Visibility))]
     public class BoolToVisibilityConverter : IValueConverter
     {
@@ -276,6 +308,25 @@ namespace TravianTools.ViewModels
                               System.Globalization.CultureInfo culture)
         {
             return (value != null && (bool)value) ? Visibility.Collapsed : Visibility.Visible;
+        }
+
+        public object ConvertBack(object                           value, Type targetType, object parameter,
+                                  System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    [ValueConversion(typeof(int), typeof(Visibility))]
+    public class CmdTypeIdToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object                           value, Type targetType, object parameter,
+                              System.Globalization.CultureInfo culture)
+        {
+            if (value == null || parameter == null) return Visibility.Collapsed;
+            
+            var q = (int)value;
+            return q == System.Convert.ToInt32(parameter) ? Visibility.Visible : Visibility.Collapsed;
         }
 
         public object ConvertBack(object                           value, Type targetType, object parameter,

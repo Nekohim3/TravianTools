@@ -83,5 +83,9 @@ namespace TravianTools.Data
             UpdateTimeStamp = time;
             UpdateTime      = DateTime.Now;
         }
+
+        public bool IsGreaterOrEq(Resource res) => Wood >= res.Wood && Clay >= res.Clay && Iron >= res.Iron && Crop >= res.Crop;
+
+        public bool IsLess(Resource res) => !IsGreaterOrEq(res);
     }
 }

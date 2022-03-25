@@ -123,6 +123,11 @@ namespace TravianTools.Data
             }
         }
 
+        public Building(dynamic data)
+        {
+            Update(data);
+        }
+
         public Building(Account acc)
         {
             Account = acc;

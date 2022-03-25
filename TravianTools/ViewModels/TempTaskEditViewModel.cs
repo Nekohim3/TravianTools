@@ -37,51 +37,27 @@ namespace TravianTools.ViewModels
             }
         }
 
-        private ObservableCollection<Village> _villageList;
+        private bool _outerVisible;
 
-        public ObservableCollection<Village> VillageList
+        public bool OuterVisible
         {
-            get => _villageList;
+            get => _outerVisible;
             set
             {
-                _villageList = value;
-                RaisePropertyChanged(() => VillageList);
+                _outerVisible = value;
+                RaisePropertyChanged(() => OuterVisible);
             }
         }
 
-        private Village _selectedVillage;
+        private bool _innerVisible;
 
-        public Village SelectedVillage
+        public bool InnerVisible
         {
-            get => _selectedVillage;
+            get => _innerVisible;
             set
             {
-                _selectedVillage = value;
-                RaisePropertyChanged(() => SelectedVillage);
-            }
-        }
-
-        private ObservableCollection<Village> _nonExistVillageList;
-
-        public ObservableCollection<Village> NonExistVillageList
-        {
-            get => _nonExistVillageList;
-            set
-            {
-                _nonExistVillageList = value;
-                RaisePropertyChanged(() => NonExistVillageList);
-            }
-        }
-
-        private Village _selectedNonExistVillage;
-
-        public Village SelectedNonExistVillage
-        {
-            get => _selectedNonExistVillage;
-            set
-            {
-                _selectedNonExistVillage = value;
-                RaisePropertyChanged(() => SelectedNonExistVillage);
+                _innerVisible = value;
+                RaisePropertyChanged(() => InnerVisible);
             }
         }
 
@@ -101,21 +77,7 @@ namespace TravianTools.ViewModels
 
         public TempTaskEditViewModel()
         {
-            g.Accounts?.SelectedAccount?.Player?.UpdateVillageList();
-            //VillageList         = new ObservableCollection<Village>(g.Accounts.SelectedAccount.Player.VillageList.ToList());
-            NonExistVillageList = new ObservableCollection<Village>()
-                                  {
-                                      new Village(null){ Id = -1, Name = "Первая"},
-                                      new Village(null){ Id = -2, Name = "Вторая"},
-                                      new Village(null){ Id = -3, Name = "Третья"},
-                                      new Village(null){ Id = -4, Name = "Четвертая"},
-                                      new Village(null){ Id = -5, Name = "Пятая"},
-                                      new Village(null){ Id = -6, Name = "Шестая"},
-                                      new Village(null){ Id = -7, Name = "Седьмая"},
-                                      new Village(null){ Id = -8, Name = "Восьмая"},
-                                      new Village(null){ Id = -9, Name = "Девятая"},
-                                      new Village(null){ Id = -10, Name = "Десятая"},
-                                  };
+
         }
 
         public void SetEntity(TempTask tt)

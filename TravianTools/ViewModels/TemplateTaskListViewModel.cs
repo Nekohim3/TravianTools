@@ -10,6 +10,7 @@ using System.Xml.Serialization;
 using Microsoft.Practices.Prism.Commands;
 using Microsoft.Practices.Prism.ViewModel;
 using TravianTools.Data;
+using TravianTools.Data.StaticData;
 using TravianTools.Task;
 using TravianTools.TravianCommands;
 using TravianTools.Utils;
@@ -73,21 +74,9 @@ namespace TravianTools.ViewModels
             }
         }
 
-        private ObservableCollection<(int id, string name)> _cmdTypeList;
+        private CommandType _selectedCmdType;
 
-        public ObservableCollection<(int id, string name)> CmdTypeList
-        {
-            get => _cmdTypeList;
-            set
-            {
-                _cmdTypeList = value;
-                RaisePropertyChanged(() => CmdTypeList);
-            }
-        }
-
-        private (int id, string name) _selectedCmdType;
-
-        public (int id, string name) SelectedCmdType
+        public CommandType SelectedCmdType
         {
             get => _selectedCmdType;
             set
@@ -117,6 +106,9 @@ namespace TravianTools.ViewModels
         public DelegateCommand SaveTaskListCmd   { get; }
         public DelegateCommand CancelTaskListCmd { get; }
 
+        public DelegateCommand SaveTaskCmd   { get; }
+        public DelegateCommand CancelTaskCmd { get; }
+
         public TemplateTaskListViewModel()
         {
             AddTaskListCmd    = new DelegateCommand(OnAddTaskList);
@@ -134,25 +126,8 @@ namespace TravianTools.ViewModels
 
             SaveTaskListCmd   = new DelegateCommand(OnSaveTaskList);
             CancelTaskListCmd = new DelegateCommand(OnCancelTaskList);
-
-            CmdTypeList = new ObservableCollection<(int id, string name)>
-                          {
-                              (0, "Построить / улучшить здание (собрать руины)"),
-                              (1, "Снести здание"),
-                              (2, "Завершить строительство"),
-                              (3, "NPC торговец"),
-                              (4, "Рынок"),
-                              (5, "Собрать награду"),
-                              (6, "Установить имя деревни"),
-                              (7, "Юзнуть итем"),
-                              (8, "Аттрибуты героя"),
-                              (9, "Приключение"),
-                              (10, "DialogAction"),
-                              (11, "Нанять юнитов"),
-                              (12, "Отправить войска"),
-                              (13, "Выбрать рассу"),
-                              (14, "Чето с оазисом")
-                          };
+            SaveTaskCmd   = new DelegateCommand(OnSaveTask);
+            CancelTaskCmd = new DelegateCommand(OnCancelTask);
 
             TempTaskListEditVM = new TempTaskListEditViewModel();
             TempTaskEditVM = new TempTaskEditViewModel();
@@ -193,6 +168,22 @@ namespace TravianTools.ViewModels
 
             SaveTaskListCmd.RaiseCanExecuteChanged();
             CancelTaskListCmd.RaiseCanExecuteChanged();
+            SaveTaskCmd.RaiseCanExecuteChanged();
+            CancelTaskCmd.RaiseCanExecuteChanged();
+
+        }
+
+        private void OnSaveTask()
+        {
+            if (CommandInputChecker(TempTaskEditVM.CurrentTask.Command))
+            {
+                g.TempTaskService.Save(TempTaskEditVM.CurrentTask);
+                Init();
+            }
+        }
+
+        private void OnCancelTask()
+        {
 
         }
 
@@ -236,22 +227,26 @@ namespace TravianTools.ViewModels
 
         private void OnAddTask()
         {
-            var t                                  = new TempTask() { Id = g.TempTaskService.GetNewId(), TempTaskListId = SelectedTaskList.Id };
-            if (SelectedCmdType.id == 0) t.Command = new BuildingUpgradeCmd();
-            if (SelectedCmdType.id == 1) t.Command = new BuildingDestroyCmd();
-            //if (SelectedCmdType.id == 2) t.Command = new FinishNowCmd();
-            if (SelectedCmdType.id == 3) t.Command = new NpcTradeCmd();
-            if (SelectedCmdType.id == 4) t.Command = new TradeCmd();
-            //if (SelectedCmdType.id == 5) t.Command = new CollectRewardCmd();
-            if (SelectedCmdType.id == 6) t.Command = new SetVillageNameCmd();
-            if (SelectedCmdType.id == 7) t.Command = new UseHeroItem();
-            if (SelectedCmdType.id == 8) t.Command = new HeroAttrAddCmd();
-            //if (SelectedCmdType.id == 9) t.Command = new HeroAdvCmd();
-            if (SelectedCmdType.id == 10) t.Command = new DialogActionCmd();
-            //if (SelectedCmdType.id == 11) t.Command = new RecriutUnitsCmd();
-            //if (SelectedCmdType.id == 12) t.Command = new SendTroopCmd();
-            //if (SelectedCmdType.id == 13) t.Command = new ChooseTribeCmd();
-            //if (SelectedCmdType.id == 14) t.Command = new BuildingUpgradeCmd();
+            var t                                  = new TempTask() { Id = g.TempTaskService.GetNewId(),
+                                                                        TempTaskListId = SelectedTaskList.Id,
+                                                                        CommandType = SelectedCmdType};
+            if (SelectedCmdType.Id == 0) t.Command = new BuildingUpgradeCmd();
+            if (SelectedCmdType.Id == 1) t.Command = new BuildingDestroyCmd();
+            //if (SelectedCmdType.Id == 2) t.Command = new FinishNowCmd();
+            if (SelectedCmdType.Id == 3) t.Command = new NpcTradeCmd();
+            if (SelectedCmdType.Id == 4) t.Command = new TradeCmd();
+            //if (SelectedCmdType.Id == 5) t.Command = new CollectRewardCmd();
+            if (SelectedCmdType.Id == 6) t.Command = new SetVillageNameCmd();
+            if (SelectedCmdType.Id == 7) t.Command = new UseHeroItem();
+            if (SelectedCmdType.Id == 8) t.Command = new HeroAttrAddCmd();
+            //if (SelectedCmdType.Id == 9) t.Command = new HeroAdvCmd();
+            if (SelectedCmdType.Id == 10) t.Command = new DialogActionCmd();
+            //if (SelectedCmdType.Id == 11) t.Command = new RecriutUnitsCmd();
+            //if (SelectedCmdType.Id == 12) t.Command = new SendTroopCmd();
+            //if (SelectedCmdType.Id == 13) t.Command = new ChooseTribeCmd();
+            //if (SelectedCmdType.Id == 14) t.Command = new BuildingUpgradeCmd();
+            if(t.Command != null)
+                t.CommandString = CommandTypesData.GetByType(t.Command.GetType())?.Name;
             TempTaskEditVM.InitActionAdd(t);
         }
 
@@ -274,5 +269,28 @@ namespace TravianTools.ViewModels
         {
 
         }
+
+        #region CommandInputChecker
+
+        public bool CommandInputChecker(BaseCommand cmd)
+        {
+            var errorStr = "";
+            if (cmd.Type == typeof(BuildingUpgradeCmd).ToString())
+            {
+                var q = (BuildingUpgradeCmd)cmd;
+                if (q.LocationId < 0 || q.LocationId > 45)
+                    errorStr += "Позиция введена неверно\n";
+                if (q.VillageId == 0)
+                    errorStr += "Деревня не выбрана\n";
+                if (q.BuildingType == 0)
+                    errorStr += "Постройка не выбрана\n";
+            }
+
+            if (!string.IsNullOrEmpty(errorStr))
+                MessageBox.Show($"Сохранение не выполнено!\n{errorStr}");
+            return string.IsNullOrEmpty(errorStr);
+        }
+
+        #endregion
     }
 }
