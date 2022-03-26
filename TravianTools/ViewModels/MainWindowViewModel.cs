@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -10,8 +11,11 @@ using System.Windows.Data;
 using System.Windows.Media;
 using Microsoft.Practices.Prism.Commands;
 using Microsoft.Practices.Prism.ViewModel;
+using Newtonsoft.Json;
 using TravianTools.Data;
 using TravianTools.TravianCommands;
+using TravianTools.TravianUtils;
+using TravianTools.Utils.DataBase;
 using TravianTools.Views;
 
 namespace TravianTools.ViewModels
@@ -68,6 +72,69 @@ namespace TravianTools.ViewModels
             }
         }
 
+        private ObservableCollection<TempTaskList> _taskListList;
+
+        public ObservableCollection<TempTaskList> TaskListList
+        {
+            get => _taskListList;
+            set
+            {
+                _taskListList = value;
+                RaisePropertyChanged(() => TaskListList);
+            }
+        }
+
+        private TempTaskList _selectedTaskList;
+
+        public TempTaskList SelectedTaskList
+        {
+            get => _selectedTaskList;
+            set
+            {
+                _selectedTaskList = value;
+                RaisePropertyChanged(() => SelectedTaskList);
+                if (value != null)
+                {
+                    g.Accounts.SelectedAccount.CurrentTaskListId = value.Id;
+                    if (value.Id == 0)
+                        g.Accounts.SelectedAccount.CurrentTaskId = 0;
+                    TaskList                                     = new ObservableCollection<TempTask>(g.TempTaskService.GetAllByTaskListId(value.Id));
+                    SelectedTask                                 = TaskList.FirstOrDefault(x => x.Id == g.Accounts.SelectedAccount.CurrentTaskId);
+                    Accounts.Save();
+                }
+
+            }
+        }
+
+        private ObservableCollection<TempTask> _taskList;
+
+        public ObservableCollection<TempTask> TaskList
+        {
+            get => _taskList;
+            set
+            {
+                _taskList = value;
+                RaisePropertyChanged(() => TaskList);
+            }
+        }
+
+        private TempTask _selectedTask;
+
+        public TempTask SelectedTask
+        {
+            get => _selectedTask;
+            set
+            {
+                _selectedTask = value;
+                RaisePropertyChanged(() => SelectedTask);
+                if (value != null)
+                {
+                    g.Accounts.SelectedAccount.CurrentTaskId = value.Id;
+                    Accounts.Save();
+                }
+            }
+        }
+
         #endregion
 
         #region Commands
@@ -113,6 +180,15 @@ namespace TravianTools.ViewModels
             TestUpdateCmd = new DelegateCommand(OnTestUpdateCmd);
 
             ShowAccounts = true;
+            ShowTaskList = true;
+        }
+
+        public void TaskListInit()
+        {
+            TaskListList = new ObservableCollection<TempTaskList>(g.TempTaskListService.GetAll());
+            TaskListList.Insert(0, new TempTaskList() {Id = 0, Name = "Не выбрано"});
+            SelectedTaskList = TaskListList.FirstOrDefault(x => x.Id == g.Accounts.SelectedAccount.CurrentTaskListId);
+
         }
 
         #endregion
@@ -126,7 +202,8 @@ namespace TravianTools.ViewModels
 
         private void OnTestUpdateCmd()
         {
-            //var cmd = new BuildingUpgradeCmd(g.Accounts.SelectedAccount, 0, 25, 17) as BaseCommand;
+            var q = g.Accounts.SelectedAccount.Driver.PostJo(RPG.FinishBuild(g.Accounts.SelectedAccount.Driver.GetSession(), 0, 0, 1));
+            //var cmd = new BuildingUpgradeCmd(g.Accounts.SelectedAccount, 0, 25, 17, false) as BaseCommand;
             //cmd.Execute();
             //g.Accounts.SelectedAccount.UpdateAll();
         }
@@ -137,6 +214,7 @@ namespace TravianTools.ViewModels
             var vm = new TemplateTaskListViewModel();
             f.DataContext = vm;
             f.ShowDialog();
+            
         }
 
         private void OnTaskList()

@@ -89,11 +89,12 @@ namespace TravianTools.TravianUtils
                         new JProperty("params",
                                       new JObject(
                                                   new JProperty("villageId", villageId),
-                                                  new JObject(
-                                                              new JProperty("1", r1),
-                                                              new JProperty("2", r2),
-                                                              new JProperty("3", r3),
-                                                              new JProperty("4", r4)))));
+                                                  new JProperty("distributeRes",
+                                                                new JObject(
+                                                                            new JProperty("1", r1),
+                                                                            new JProperty("2", r2),
+                                                                            new JProperty("3", r3),
+                                                                            new JProperty("4", r4))))));
 
         public static JObject SetVillageName(string session, int villageId, string villageName) =>
             new JObject(

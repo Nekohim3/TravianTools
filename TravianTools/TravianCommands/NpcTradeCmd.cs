@@ -32,9 +32,10 @@ namespace TravianTools.TravianCommands
             R4 = r4;
         }
 
-        public override void Execute()
+        public override bool Execute()
         {
             //Http.Post(RPG.NpcTrade(Account.Session, VillageId, R1, R2, R3, R4));
+            return true;
         }
     }
 }

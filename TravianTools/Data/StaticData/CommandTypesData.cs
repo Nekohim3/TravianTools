@@ -35,6 +35,7 @@ namespace TravianTools.Data.StaticData
         public static CommandType GetByType(Type t)
         {
             if (t == typeof(BuildingUpgradeCmd)) return CommandTypeList[0];
+            if (t == typeof(BuildingDestroyCmd)) return CommandTypeList[1];
             return null;
         }
     }

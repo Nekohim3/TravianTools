@@ -90,7 +90,7 @@
                         <!-- параметры комманды -->
                         <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3">
                             <!-- Building upgrade -->
-                            <Grid Visibility="Collapsed">
+                            <Grid Visibility="{Binding CurrentTask.CommandType.Id, Converter={StaticResource CmdTypeIdToVisibilityConverter}, ConverterParameter=0}">
                                 <!--Visibility="{Binding CurrentTask.CommandType.Id, Converter={StaticResource CmdTypeIdToVisibilityConverter}, ConverterParameter=0}"-->
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -130,12 +130,13 @@
                                     <ComboBox Grid.Row="1" Grid.Column="1" Width="200" 
                                               ItemsSource="{Binding Source={x:Static bdata:BuildingsData.BuildingList}}" DisplayMemberPath="Name"  Margin="2"
                                               SelectedValue="{Binding Path=CurrentTask.Command.BuildingType}" SelectedValuePath="Id"/>
-                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Id локации (1-45)" Margin="5"/>
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Id локации (1-40)" Margin="5"/>
                                     <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding CurrentTask.Command.LocationId, UpdateSourceTrigger=PropertyChanged}" Height="20" VerticalAlignment="Top" Margin="2"/>
                                     <TextBlock Grid.Row="2" Grid.Column="2" Margin="2">
                                         Для деревни можно ввести 0,<LineBreak/>тогда бот попытается найти здание, если оно построено.<LineBreak/>Если не найдет - остановится
                                     </TextBlock>
-                                    <CheckBox Grid.Row="3" Grid.Column="1" Content="Использовать NPC торговца" Margin="2" IsChecked="{Binding CurrentTask.Command.UseNpc}"/>
+                                    <CheckBox Grid.Row="3" Grid.Column="1" Content="Использовать NPC торговца" Margin="5" IsChecked="{Binding CurrentTask.Command.UseNpc}"/>
+                                    <CheckBox Grid.Row="3" Grid.Column="0" Content="Построить сразу" Margin="5" IsChecked="{Binding CurrentTask.Command.BuildInst}"/>
                                 </Grid>
                                 <Grid Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2">
                                     <Grid.ColumnDefinitions>
@@ -148,6 +149,7 @@
 
                             </Grid>
                             <Grid Visibility="{Binding CurrentTask.CommandType.Id, Converter={StaticResource CmdTypeIdToVisibilityConverter}, ConverterParameter=1}">
+                                <!--{Binding CurrentTask.CommandType.Id, Converter={StaticResource CmdTypeIdToVisibilityConverter}, ConverterParameter=1}-->
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
@@ -184,14 +186,12 @@
                                               SelectedValue="{Binding Path=CurrentTask.Command.VillageId}" SelectedValuePath="Id"/>
                                     <TextBlock Grid.Row="1" Grid.Column="0" Text="Здание" Margin="5"/>
                                     <ComboBox Grid.Row="1" Grid.Column="1" Width="200" 
-                                              ItemsSource="{Binding Source={x:Static bdata:BuildingsData.BuildingList}}" DisplayMemberPath="Name"  Margin="2"
+                                              ItemsSource="{Binding Source={x:Static bdata:BuildingsData.InnerBuildingList}}" DisplayMemberPath="Name"  Margin="2"
                                               SelectedValue="{Binding Path=CurrentTask.Command.BuildingType}" SelectedValuePath="Id"/>
-                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Id локации (1-45)" Margin="5"/>
-                                    <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding CurrentTask.Command.LocationId, UpdateSourceTrigger=PropertyChanged}" Height="20" VerticalAlignment="Top" Margin="2"/>
-                                    <TextBlock Grid.Row="2" Grid.Column="2" Margin="2">
-                                        Для деревни можно ввести 0,<LineBreak/>тогда бот попытается найти здание, если оно построено.<LineBreak/>Если не найдет - остановится
-                                    </TextBlock>
-                                    <CheckBox Grid.Row="3" Grid.Column="1" Content="Использовать NPC торговца" Margin="2" IsChecked="{Binding CurrentTask.Command.UseNpc}"/>
+                                    
+                                    <CheckBox Grid.Row="3" Grid.Column="0" Content="Снести сразу" Margin="5" IsChecked="{Binding CurrentTask.Command.BuildInst}"/>
+                                    <CheckBox Grid.Row="3" Grid.Column="1" Content="Разобрать руины" Margin="5" IsChecked="{Binding CurrentTask.Command.Disassemble}"/>
+                                    <CheckBox Grid.Row="3" Grid.Column="2" Content="Разобрать руины сразу" Margin="5" IsChecked="{Binding CurrentTask.Command.DisassembleInst}"/>
                                 </Grid>
                                 <Grid Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2">
                                     <Image Source="../Data/StaticData/inner.png" Stretch="Fill"/>
@@ -203,11 +203,15 @@
                         <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="200"/>
                                 <ColumnDefinition Width="80"/>
                                 <ColumnDefinition Width="80"/>
                             </Grid.ColumnDefinitions>
-                            <Button Grid.Column="1" Content="Сохранить" Margin="3" Command="{Binding ElementName=Root, Path=DataContext.SaveTaskCmd}"/>
-                            <Button Grid.Column="2" Content="Отмена" Margin="3" Command="{Binding ElementName=Root, Path=DataContext.CancelTaskCmd}"/>
+                            <TextBlock Grid.Column="1" Text="Комментарий" Margin="3" TextAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBox Grid.Column="2" Text="{Binding CurrentTask.Note}"/>
+                            <Button Grid.Column="3" Content="Сохранить" Margin="3" Command="{Binding ElementName=Root, Path=DataContext.SaveTaskCmd}"/>
+                            <Button Grid.Column="4" Content="Отмена" Margin="3" Command="{Binding ElementName=Root, Path=DataContext.CancelTaskCmd}"/>
 
                         </Grid>
                     </Grid>

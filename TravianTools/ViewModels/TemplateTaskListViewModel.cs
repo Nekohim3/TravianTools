@@ -43,6 +43,7 @@ namespace TravianTools.ViewModels
                 _selectedTaskList = value;
                 TaskList          = _selectedTaskList != null ? new ObservableCollection<TempTask>(g.TempTaskService.GetAllByTaskListId(_selectedTaskList.Id)) : null;
                 TempTaskListEditVM.SetEntity(_selectedTaskList);
+                TempTaskEditVM.SetEntity(_selectedTask);
                 RaisePropertyChanged(() => SelectedTaskList);
                 RaiseCanExecChanged();
             }
@@ -184,7 +185,7 @@ namespace TravianTools.ViewModels
 
         private void OnCancelTask()
         {
-
+            TempTaskEditVM.SetEntity(SelectedTask);
         }
 
         private void OnSaveTaskList()
@@ -252,12 +253,14 @@ namespace TravianTools.ViewModels
 
         private void OnEditTask()
         {
-
+            TempTaskEditVM.InitActionEdit();
         }
 
         private void OnRemoveTask()
         {
-
+            if (MessageBox.Show($"Точно удалить таску \"{SelectedTask.Desc}\"?", "", MessageBoxButton.YesNo) != MessageBoxResult.Yes) return;
+            g.TempTaskService.Remove(SelectedTask);
+            Init();
         }
 
         private void OnUp()
@@ -278,12 +281,26 @@ namespace TravianTools.ViewModels
             if (cmd.Type == typeof(BuildingUpgradeCmd).ToString())
             {
                 var q = (BuildingUpgradeCmd)cmd;
-                if (q.LocationId < 0 || q.LocationId > 45)
+                if (q.LocationId < 0 || q.LocationId > 40)
                     errorStr += "Позиция введена неверно\n";
                 if (q.VillageId == 0)
                     errorStr += "Деревня не выбрана\n";
                 if (q.BuildingType == 0)
                     errorStr += "Постройка не выбрана\n";
+                if (q.BuildingType <= 4 && (q.LocationId > 18 || q.LocationId < 1))
+                    errorStr += "Для рес полей надо задать Id позиции (1-18)\n";
+                if (q.BuildingType == 25 || q.BuildingType == 26 || q.BuildingType == 40)
+                    errorStr += "Резу, дворец и чудо нельзя завершить сразу";
+            }
+            if (cmd.Type == typeof(BuildingDestroyCmd).ToString())
+            {
+                var q = (BuildingDestroyCmd)cmd;
+                if (q.VillageId == 0)
+                    errorStr += "Деревня не выбрана\n";
+                if (q.BuildingType == 0)
+                    errorStr += "Постройка не выбрана\n";
+                if (q.BuildingType == 25 || q.BuildingType == 26 || q.BuildingType == 40)
+                    errorStr += "Резу, дворец и чудо нельзя завершить сразу";
             }
 
             if (!string.IsNullOrEmpty(errorStr))

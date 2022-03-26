@@ -23,15 +23,15 @@ namespace TravianTools.Utils
 {
     public class Driver
     {
-        public  Account                           Account { get; set; }
-        public  ChromeDriverService               Service { get; set; }
-        private ChromeOptions                     Options { get; set; }
-        public  ChromeDriver                      Chrome  { get; set; }
-        public  IJavaScriptExecutor               JsExec  { get; set; }
-        public  Actions                           Act     { get; set; }
-        public  SeleniumHostWPF Host    { get; set; }
+        public  Account             Account { get; set; }
+        public  ChromeDriverService Service { get; set; }
+        private ChromeOptions       Options { get; set; }
+        public  ChromeDriver        Chrome  { get; set; }
+        public  IJavaScriptExecutor JsExec  { get; set; }
+        public  Actions             Act     { get; set; }
+        public  SeleniumHostWPF     Host    { get; set; }
+        private DateTime _lastRespDate = DateTime.MinValue;
 
-        
 
         public void Init(Account acc)
         {
@@ -56,12 +56,13 @@ namespace TravianTools.Utils
             //}
 
             Options.AddArgument($"user-data-dir={g.Settings.UserDataPath}\\{Account.Name}");
-            Chrome             = new ChromeDriver(Service, Options);
-            JsExec             = Chrome;
-            Act                = new Actions(Chrome);
-            Application.Current.Dispatcher.Invoke(() => {
+            Chrome = new ChromeDriver(Service, Options);
+            JsExec = Chrome;
+            Act    = new Actions(Chrome);
+            Application.Current.Dispatcher.Invoke(() =>
+                                                  {
                                                       Host = new SeleniumHostWPF
-                                                      {
+                                                             {
                                                                  DriverService = Service
                                                              };
                                                   });
@@ -82,7 +83,6 @@ namespace TravianTools.Utils
             Service.Dispose();
             Service                            = null;
             Account.Running                    = false;
-            Account.FreeInstantBuilder.Working = false;
             Logger.Info($"[{Account.Name}]: End driver deinitialization");
         }
 
@@ -90,7 +90,7 @@ namespace TravianTools.Utils
 
         public string GetSession()
         {
-            var cookies  = Chrome.Manage().Cookies.AllCookies;
+            var cookies     = Chrome.Manage().Cookies.AllCookies;
             var sessionJson = cookies.FirstOrDefault(x => x.Name == "t5SessionKey");
             if (sessionJson == null) return "";
             var     decodedSessionJson        = WebUtility.UrlDecode(sessionJson.Value);
@@ -125,41 +125,65 @@ namespace TravianTools.Utils
             }
         }
 
-        public string Post(JObject json)
+        public dynamic PostJo(JObject json)
         {
-            var req = (HttpWebRequest)WebRequest.Create(
-                                                         $"https://{g.Settings.Server}.{g.Settings.Domain}/api/?c={(json as dynamic).controller}&a={(json as dynamic).action}&t{GetTimeStamp()}");
-            var data = Rem(json.ToString());
-            var buffer = Encoding.UTF8.GetBytes(data);
+            var counter = 0;
+            while (counter < 5)
+            {
+                try
+                {
+                    while ((DateTime.Now - _lastRespDate).TotalMilliseconds < 300)
+                        Thread.Sleep(10);
+                    _lastRespDate = DateTime.Now;
+                    var req = (HttpWebRequest) WebRequest.Create(
+                                                                 $"https://{g.Settings.Server}.{g.Settings.Domain}/api/?c={(json as dynamic).controller}&a={(json as dynamic).action}&t{GetTimeStamp()}");
+                    var data   = Rem(json.ToString());
+                    var buffer = Encoding.UTF8.GetBytes(data);
 
-            req.Method = "POST";
-            req.Accept = "application/json, text/plain, */*";
-            req.ContentType = "application/json;charset=UTF-8";
-            req.Host = $"{g.Settings.Server}.{g.Settings.Domain}";
-            req.Referer = $"https://{g.Settings.Server}.{g.Settings.Domain}/";
-            req.UserAgent =
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36 OPR/48.0.2685.50";
-            req.Headers.Add("Accept-Encoding", "gzip, deflate, br");
-            req.Headers.Add("Accept-Language", "ru-RU,ru;q=0.8,en-US;q=0.6,en;q=0.4");
-            req.Headers.Add("Origin", $"https://{g.Settings.Server}.{g.Settings.Domain}");
+                    req.Method      = "POST";
+                    req.Accept      = "application/json, text/plain, */*";
+                    req.ContentType = "application/json;charset=UTF-8";
+                    req.Host        = $"{g.Settings.Server}.{g.Settings.Domain}";
+                    req.Referer     = $"https://{g.Settings.Server}.{g.Settings.Domain}/";
+                    req.UserAgent =
+                        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36 OPR/48.0.2685.50";
+                    req.Headers.Add("Accept-Encoding", "gzip, deflate, br");
+                    req.Headers.Add("Accept-Language", "ru-RU,ru;q=0.8,en-US;q=0.6,en;q=0.4");
+                    req.Headers.Add("Origin",          $"https://{g.Settings.Server}.{g.Settings.Domain}");
 
-            req.Headers.Add("Cookie", GetCookieString());
+                    req.Headers.Add("Cookie", GetCookieString());
 
-            req.ContentLength = buffer.Length;
-            req.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
-            var reqStream = req.GetRequestStream();
-            reqStream.Write(buffer, 0, data.Length);
-            reqStream.Close();
-            var resp = (HttpWebResponse)req.GetResponse();
-            var strReader = new StreamReader(resp.GetResponseStream());
-            var workingPage = strReader.ReadToEnd();
-            resp.Close();
-            Logger.Data(workingPage);
-            return workingPage;
+                    req.ContentLength          = buffer.Length;
+                    req.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+                    var reqStream = req.GetRequestStream();
+                    reqStream.Write(buffer, 0, data.Length);
+                    reqStream.Close();
+                    var resp        = (HttpWebResponse) req.GetResponse();
+                    var strReader   = new StreamReader(resp.GetResponseStream());
+                    var workingPage = strReader.ReadToEnd();
+                    resp.Close();
+                    Logger.Data(workingPage);
+                    var jo = JObject.Parse(workingPage) as dynamic;
+                    if (jo == null || jo.cache == null || jo.cache.Count == 0 || jo.time == null || jo.error != null)
+                    {
+                        counter++;
+                        Logger.Info($"Post error {counter}");
+                    }
+                    else
+                        return jo;
+                }
+                catch (Exception e)
+                {
+                    Logger.Info(e.ToString());
+                    counter++;
+                }
+            }
+
+            return null;
         }
 
-        public string Rem(string str) => str.Replace("\r", "").Replace("\n", "").Replace(" ", "");
-        private string GetTimeStamp() => ((long)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalMilliseconds).ToString();
+        public  string Rem(string str) => str.Replace("\r", "").Replace("\n", "").Replace(" ", "");
+        private string GetTimeStamp()  => ((long) DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalMilliseconds).ToString();
 
         public bool IsBrowserClosed()
         {
@@ -178,64 +202,102 @@ namespace TravianTools.Utils
 
         #region TReq
 
-        public void BuildingDestroy(int villageId, int locationId)
+
+        public bool BuildingUpgrade(int villageId, int locationId, int buildingType)
+        {
+            Logger.Info($"[{Account.Name}]: BuildingUpgrade ({villageId}, {locationId}, {buildingType})");
+            try
+            {
+                var data = PostJo(RPG.BuildingUpgrade(GetSession(), villageId, locationId, buildingType));
+                if (data == null)
+                {
+                    Logger.Info($"[{Account.Name}]: BuildingUpgrade ({villageId}, {locationId}, {buildingType}) Update FAILED");
+                    return false;
+                }
+                if (data.response != null) return true;
+
+                Account.Update(data, (long) data.time);
+            }
+            catch (Exception e)
+            {
+                Logger.Info($"[{Account.Name}]: BuildingUpgrade ({villageId}, {locationId}, {buildingType}) Update FAILED with exception:\n{e}\n{e.InnerException}\n{e.InnerException?.InnerException}");
+                return false;
+            }
+
+            return true;
+        }
+
+        public bool BuildingDestroy(int villageId, int locationId)
         {
             Logger.Info($"[{Account.Name}]: BuildingDestroy ({villageId}, {locationId})");
             try
             {
-                var data = JObject.Parse(Post(RPG.BuildingDestroy(GetSession(), villageId, locationId))) as dynamic;
-                if (data == null || data.cache == null || data.cache.Count == 0 || data.time == null)
+                var data = PostJo(RPG.BuildingDestroy(GetSession(), villageId, locationId));
+                if (data == null)
                 {
                     Logger.Info($"[{Account.Name}]: BuildingDestroy ({villageId}, {locationId}) Update FAILED");
-                    return;
+                    return false;
                 }
+                if (data.response != null) return true;
 
                 Account.Update(data, (long)data.time);
             }
             catch (Exception e)
             {
                 Logger.Info($"[{Account.Name}]: BuildingDestroy ({villageId}, {locationId}) Update FAILED with exception:\n{e}\n{e.InnerException}\n{e.InnerException?.InnerException}");
+                return false;
             }
+
+            return true;
         }
 
-        public void BuildingUpgrade(int villageId, int locationId, int buildingType)
+        public bool NpcTrade(int villageId, Resource res)
         {
-            Logger.Info($"[{Account.Name}]: BuildingUpgrade ({villageId}, {locationId}, {buildingType})");
+            Logger.Info($"[{Account.Name}]: NpcTrade ({villageId}, {res})");
             try
             {
-                var data = JObject.Parse(Post(RPG.BuildingUpgrade(GetSession(), villageId, locationId, buildingType))) as dynamic;
-                if (data == null || data.cache == null || data.cache.Count == 0 || data.time == null)
+                var data = PostJo(RPG.NpcTrade(GetSession(), villageId, res.Wood, res.Clay, res.Iron, res.Crop));
+                if (data == null)
                 {
-                    Logger.Info($"[{Account.Name}]: BuildingUpgrade ({villageId}, {locationId}, {buildingType}) Update FAILED");
-                    return;
+                    Logger.Info($"[{Account.Name}]: NpcTrade ({villageId}, {res}) Update FAILED");
+                    return false;
                 }
+                if (data.response != null) return true;
 
                 Account.Update(data, (long)data.time);
             }
             catch (Exception e)
             {
-                Logger.Info($"[{Account.Name}]: BuildingUpgrade ({villageId}, {locationId}, {buildingType}) Update FAILED with exception:\n{e}\n{e.InnerException}\n{e.InnerException?.InnerException}");
+                Logger.Info($"[{Account.Name}]: NpcTrade ({villageId}, {res}) Update FAILED with exception:\n{e}\n{e.InnerException}\n{e.InnerException?.InnerException}");
+                return false;
             }
+
+            return true;
         }
 
-        public void FinishNow(int villageId, int queueType, int price)
+        public bool FinishNow(int villageId, int queueType, int price)
         {
             Logger.Info($"[{Account.Name}]: FinishNow ({villageId}, {queueType}, {price})");
             try
             {
-                var data = JObject.Parse(Post(RPG.FinishBuild(GetSession(), villageId, price, queueType))) as dynamic;
-                if (data == null || data.cache == null || data.cache.Count == 0 || data.time == null)
+                var data = PostJo(RPG.FinishBuild(GetSession(), villageId, price, queueType));
+                if (data == null)
                 {
                     Logger.Info($"[{Account.Name}]: FinishNow ({villageId}, {queueType}, {price}) Update FAILED");
-                    return;
+                    return false;
                 }
 
-                Account.Update(data, (long)data.time);
+                if (data.response != null) return true;
+
+                Account.Update(data, (long) data.time);
             }
             catch (Exception e)
             {
                 Logger.Info($"[{Account.Name}]: FinishNow ({villageId}, {queueType}, {price}) Update FAILED with exception:\n{e}\n{e.InnerException}\n{e.InnerException?.InnerException}");
+                return false;
             }
+
+            return true;
         }
 
 
@@ -245,7 +307,7 @@ namespace TravianTools.Utils
             Logger.Info($"[{Account.Name}]: SolvePuzzle");
             try
             {
-                Post(RPG.SolvePuzzle(GetSession(), moves));
+                PostJo(RPG.SolvePuzzle(GetSession(), moves));
             }
             catch (Exception e)
             {
@@ -258,7 +320,7 @@ namespace TravianTools.Utils
             Logger.Info($"[{Account.Name}]: GetPuzzle");
             try
             {
-                return JObject.Parse(Post(RPG.GetPuzzle(GetSession())));
+                return JObject.Parse(PostJo(RPG.GetPuzzle(GetSession())));
             }
             catch (Exception e)
             {
@@ -269,264 +331,303 @@ namespace TravianTools.Utils
 
         #region Cache
 
-        public void GetCache(List<string> lst)
+        public bool GetCache(List<string> lst)
         {
             Logger.Info($"[{Account.Name}]: GetCache ({string.Join(";", lst)})");
             try
             {
-                var data = JObject.Parse(Post(RPG.GetCache(GetSession(), lst))) as dynamic;
+                var data = PostJo(RPG.GetCache(GetSession(), lst));
                 if (data == null || data.cache == null || data.cache.Count == 0 || data.time == null)
                 {
                     Logger.Info($"[{Account.Name}]: GetCache ({string.Join(";", lst)}) Update FAILED");
-                    return;
+                    return false;
                 }
 
-                Account.Update(data, (long)data.time);
+                Account.Update(data, (long) data.time);
             }
             catch (Exception e)
             {
                 Logger.Info($"[{Account.Name}]: GetCache ({string.Join(";", lst)}) Update FAILED with exception:\n{e}\n{e.InnerException}\n{e.InnerException?.InnerException}");
+                return false;
             }
+
+            return true;
         }
 
-        public void GetCache_All()
+        public bool GetCache_All()
         {
             Logger.Info($"[{Account.Name}]: GetCache_All");
             try
             {
-                var data = JObject.Parse(Post(RPG.GetCache_All(GetSession()))) as dynamic;
+                var data = PostJo(RPG.GetCache_All(GetSession()));
                 if (data == null || data.cache == null || data.cache.Count == 0 || data.time == null)
                 {
                     Logger.Info($"[{Account.Name}]: GetCache_All Update FAILED");
-                    return;
+                    return false;
                 }
 
-                Account.Update(data, (long)data.time);
+                Account.Update(data, (long) data.time);
             }
             catch (Exception e)
             {
                 Logger.Info($"[{Account.Name}]: GetCache_All Update FAILED with exception:\n{e}\n{e.InnerException}\n{e.InnerException?.InnerException}");
+                return false;
             }
+
+            return true;
         }
 
-        public void GetCache_VillageList()
+        public bool GetCache_VillageList()
         {
             Logger.Info($"[{Account.Name}]: GetCache_VillageList");
             try
             {
-                var data = JObject.Parse(Post(RPG.GetCache_VillageList(GetSession()))) as dynamic;
+                var data = PostJo(RPG.GetCache_VillageList(GetSession()));
                 if (data == null || data.cache == null || data.cache.Count == 0 || data.time == null)
                 {
                     Logger.Info($"[{Account.Name}]: GetCache_VillageList Update FAILED");
-                    return;
+                    return false;
                 }
 
-                Account.Update(data, (long)data.time);
+                Account.Update(data, (long) data.time);
             }
             catch (Exception e)
             {
                 Logger.Info($"[{Account.Name}]: GetCache_VillageList Update FAILED with exception:\n{e}\n{e.InnerException}\n{e.InnerException?.InnerException}");
+                return false;
             }
+
+            return true;
         }
 
-        public void GetCache_CollectionHeroItemOwn()
+        public bool GetCache_CollectionHeroItemOwn()
         {
             Logger.Info($"[{Account.Name}]: GetCache_CollectionHeroItemOwn");
             try
             {
-                var data = JObject.Parse(Post(RPG.GetCache_CollectionHeroItemOwn(GetSession()))) as dynamic;
+                var data = PostJo(RPG.GetCache_CollectionHeroItemOwn(GetSession()));
                 if (data == null || data.cache == null || data.cache.Count == 0 || data.time == null)
                 {
                     Logger.Info($"[{Account.Name}]: GetCache_CollectionHeroItemOwn Update FAILED");
-                    return;
+                    return false;
                 }
 
-                Account.Update(data, (long)data.time);
+                Account.Update(data, (long) data.time);
             }
             catch (Exception e)
             {
                 Logger.Info($"[{Account.Name}]: GetCache_CollectionHeroItemOwn Update FAILED with exception:\n{e}\n{e.InnerException}\n{e.InnerException?.InnerException}");
+                return false;
             }
+
+            return true;
         }
 
-        public void GetCache_Quest()
+        public bool GetCache_Quest()
         {
             Logger.Info($"[{Account.Name}]: GetCache_Quest");
             try
             {
-                var data = JObject.Parse(Post(RPG.GetCache_Quest(GetSession()))) as dynamic;
+                var data = PostJo(RPG.GetCache_Quest(GetSession()));
                 if (data == null || data.cache == null || data.cache.Count == 0 || data.time == null)
                 {
                     Logger.Info($"[{Account.Name}]: GetCache_Quest Update FAILED");
-                    return;
+                    return false;
                 }
 
-                Account.Update(data, (long)data.time);
+                Account.Update(data, (long) data.time);
             }
             catch (Exception e)
             {
                 Logger.Info($"[{Account.Name}]: GetCache_Quest Update FAILED with exception:\n{e}\n{e.InnerException}\n{e.InnerException?.InnerException}");
+                return false;
             }
+
+            return true;
         }
 
-        public void GetCache_Player(int playerId)
+        public bool GetCache_Player(int playerId)
         {
             Logger.Info($"[{Account.Name}]: GetCache_Player ({playerId})");
             try
             {
-                var data = JObject.Parse(Post(RPG.GetCache_Player(GetSession(), playerId))) as dynamic;
+                var data = PostJo(RPG.GetCache_Player(GetSession(), playerId));
                 if (data == null || data.cache == null || data.cache.Count == 0 || data.time == null)
                 {
                     Logger.Info($"[{Account.Name}]: GetCache_Player ({playerId}) Update FAILED");
-                    return;
+                    return false;
                 }
 
-                Account.Update(data, (long)data.time);
+                Account.Update(data, (long) data.time);
             }
             catch (Exception e)
             {
                 Logger.Info($"[{Account.Name}]: GetCache_Player ({playerId}) Update FAILED with exception:\n{e}\n{e.InnerException}\n{e.InnerException?.InnerException}");
+                return false;
             }
+
+            return true;
         }
 
-        public void GetCache_Hero(int playerId)
+        public bool GetCache_Hero(int playerId)
         {
             Logger.Info($"[{Account.Name}]: GetCache_Hero ({playerId})");
             try
             {
-                var data = JObject.Parse(Post(RPG.GetCache_Hero(GetSession(), playerId))) as dynamic;
+                var data = PostJo(RPG.GetCache_Hero(GetSession(), playerId));
                 if (data == null || data.cache == null || data.cache.Count == 0 || data.time == null)
                 {
                     Logger.Info($"[{Account.Name}]: GetCache_Hero ({playerId}) Update FAILED");
-                    return;
+                    return false;
                 }
 
-                Account.Update(data, (long)data.time);
+                Account.Update(data, (long) data.time);
             }
             catch (Exception e)
             {
                 Logger.Info($"[{Account.Name}]: GetCache_Hero ({playerId}) Update FAILED with exception:\n{e}\n{e.InnerException}\n{e.InnerException?.InnerException}");
+                return false;
             }
+
+            return true;
         }
 
-        public void GetCache_BuildingQueue(int villageId)
+        public bool GetCache_BuildingQueue(int villageId)
         {
             Logger.Info($"[{Account.Name}]: GetCache_BuildingQueue ({villageId})");
             try
             {
-                var data = JObject.Parse(Post(RPG.GetCache_BuildingQueue(GetSession(), villageId))) as dynamic;
+                var data = PostJo(RPG.GetCache_BuildingQueue(GetSession(), villageId));
                 if (data == null || data.cache == null || data.cache.Count == 0 || data.time == null)
                 {
                     Logger.Info($"[{Account.Name}]: GetCache_BuildingQueue ({villageId}) Update FAILED");
-                    return;
+                    return false;
                 }
 
-                Account.Update(data, (long)data.time);
+                Account.Update(data, (long) data.time);
             }
             catch (Exception e)
             {
                 Logger.Info($"[{Account.Name}]: GetCache_BuildingQueue ({villageId}) Update FAILED with exception:\n{e}\n{e.InnerException}\n{e.InnerException?.InnerException}");
+                return false;
             }
+
+            return true;
         }
 
-        public void GetCache_BuildingCollection(int villageId)
+        public bool GetCache_BuildingCollection(int villageId)
         {
             Logger.Info($"[{Account.Name}]: GetCache_BuildingCollection ({villageId})");
             try
             {
-                var data = JObject.Parse(Post(RPG.GetCache_BuildingCollection(GetSession(), villageId))) as dynamic;
+                var data = PostJo(RPG.GetCache_BuildingCollection(GetSession(), villageId));
                 if (data == null || data.cache == null || data.cache.Count == 0 || data.time == null)
                 {
                     Logger.Info($"[{Account.Name}]: GetCache_BuildingCollection ({villageId}) Update FAILED");
-                    return;
+                    return false;
                 }
 
-                Account.Update(data, (long)data.time);
+                Account.Update(data, (long) data.time);
             }
             catch (Exception e)
             {
                 Logger.Info($"[{Account.Name}]: GetCache_BuildingCollection ({villageId}) Update FAILED with exception:\n{e}\n{e.InnerException}\n{e.InnerException?.InnerException}");
+                return false;
             }
+
+            return true;
         }
 
-        public void GetCache_MovingTroopsCollection(int villageId)
+        public bool GetCache_MovingTroopsCollection(int villageId)
         {
             Logger.Info($"[{Account.Name}]: GetCache_MovingTroopsCollection ({villageId})");
             try
             {
-                var data = JObject.Parse(Post(RPG.GetCache_MovingTroopsCollection(GetSession(), villageId))) as dynamic;
+                var data = PostJo(RPG.GetCache_MovingTroopsCollection(GetSession(), villageId));
                 if (data == null || data.cache == null || data.cache.Count == 0 || data.time == null)
                 {
                     Logger.Info($"[{Account.Name}]: GetCache_MovingTroopsCollection ({villageId}) Update FAILED");
-                    return;
+                    return false;
                 }
 
-                Account.Update(data, (long)data.time);
+                Account.Update(data, (long) data.time);
             }
             catch (Exception e)
             {
                 Logger.Info($"[{Account.Name}]: GetCache_MovingTroopsCollection ({villageId}) Update FAILED with exception:\n{e}\n{e.InnerException}\n{e.InnerException?.InnerException}");
+                return false;
             }
+
+            return true;
         }
 
-        public void GetCache_StationaryTroopsCollection(int villageId)
+        public bool GetCache_StationaryTroopsCollection(int villageId)
         {
             Logger.Info($"[{Account.Name}]: GetCache_StationaryTroopsCollection ({villageId})");
             try
             {
-                var data = JObject.Parse(Post(RPG.GetCache_StationaryTroopsCollection(GetSession(), villageId))) as dynamic;
+                var data = PostJo(RPG.GetCache_StationaryTroopsCollection(GetSession(), villageId));
                 if (data == null || data.cache == null || data.cache.Count == 0 || data.time == null)
                 {
                     Logger.Info($"[{Account.Name}]: GetCache_StationaryTroopsCollection ({villageId}) Update FAILED");
-                    return;
+                    return false;
                 }
 
-                Account.Update(data, (long)data.time);
+                Account.Update(data, (long) data.time);
             }
             catch (Exception e)
             {
                 Logger.Info($"[{Account.Name}]: GetCache_StationaryTroopsCollection ({villageId}) Update FAILED with exception:\n{e}\n{e.InnerException}\n{e.InnerException?.InnerException}");
+                return false;
             }
+
+            return true;
         }
 
-        public void GetCache_MapDetails(int villageId)
+        public bool GetCache_MapDetails(int villageId)
         {
             Logger.Info($"[{Account.Name}]: GetCache_MapDetails ({villageId})");
             try
             {
-                var data = JObject.Parse(Post(RPG.GetCache_MapDetails(GetSession(), villageId))) as dynamic;
+                var data = PostJo(RPG.GetCache_MapDetails(GetSession(), villageId));
                 if (data == null || data.cache == null || data.cache.Count == 0 || data.time == null)
                 {
                     Logger.Info($"[{Account.Name}]: GetCache_MapDetails ({villageId}) Update FAILED");
-                    return;
+                    return false;
                 }
 
-                Account.Update(data, (long)data.time);
+                Account.Update(data, (long) data.time);
             }
             catch (Exception e)
             {
                 Logger.Info($"[{Account.Name}]: GetCache_MapDetails ({villageId}) Update FAILED with exception:\n{e}\n{e.InnerException}\n{e.InnerException?.InnerException}");
+                return false;
             }
+
+            return true;
         }
 
-        public void GetCache_Building(int buildingId)
+        public bool GetCache_Building(int buildingId)
         {
             Logger.Info($"[{Account.Name}]: GetCache_Building ({buildingId})");
             try
             {
-                var data = JObject.Parse(Post(RPG.GetCache_Building(GetSession(), buildingId))) as dynamic;
+                var data = PostJo(RPG.GetCache_Building(GetSession(), buildingId));
                 if (data == null || data.cache == null || data.cache.Count == 0 || data.time == null)
                 {
                     Logger.Info($"[{Account.Name}]: GetCache_Building ({buildingId}) Update FAILED");
-                    return;
+                    return false;
                 }
 
-                Account.Update(data, (long)data.time);
+                Account.Update(data, (long) data.time);
             }
             catch (Exception e)
             {
                 Logger.Info($"[{Account.Name}]: GetCache_Building ({buildingId}) Update FAILED with exception:\n{e}\n{e.InnerException}\n{e.InnerException?.InnerException}");
+                return false;
             }
+
+            return true;
         }
 
         #endregion

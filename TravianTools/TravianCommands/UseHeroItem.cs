@@ -27,9 +27,10 @@ namespace TravianTools.TravianCommands
             Id        = id;
             VillageId = villageId;
         }
-        public override void Execute()
+        public override bool Execute()
         {
             //Http.Post(RPG.UseHeroItem(Account.Session, Amount, Id, VillageId));
+            return true;
         }
     }
 }

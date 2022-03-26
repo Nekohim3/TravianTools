@@ -40,7 +40,7 @@
             <Button Grid.Column="2" Margin="3,0,3,0" Width="120" Content="Остановить браузер" Command="{Binding StopBrowserCmd}" 
                     Visibility="{Binding Source={x:Static travianTools:g.Accounts}, Path=SelectedAccount.Running, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <Button Grid.Column="3" Content="TestUpdate" Command="{Binding TestUpdateCmd}"/>
-            <Button Grid.Column="7" Width="70" Content="Show data" Command="{Binding ShowDataCmd}" Margin="3,0,3,0"/>
+            <Button Grid.Column="7" Width="120" Content="Редактор шаблонов" Command="{Binding TaskListEditorCmd}" Margin="3,0,3,0"/>
             <Button Grid.Column="8" Width="70" Content="Таск лист" Command="{Binding TaskListCmd}" Margin="3,0,3,0"/>
         </Grid>
         <!--  -->
@@ -144,10 +144,41 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-                <ComboBox Grid.Row="0" Margin="0,3"/>
-                <Button Grid.Row="2" Margin="0,3" Content="Редактор" Command="{Binding TaskListEditorCmd}"/>
-                <ListView Width="200" Grid.Row="1"></ListView>
+                <ComboBox Grid.Row="0" Margin="0,3" ItemsSource="{Binding TaskListList}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedTaskList}"/>
+                <Button Grid.Row="3" Margin="0,3" Content="Запустить" Command="{Binding }"/>
+                <Button Grid.Row="4" Margin="0,3" Content="Остановить" Command="{Binding }"/>
+                <Button Grid.Row="5" Margin="0,3" Content="Сменить активную задачу" Command="{Binding }"/>
+                <ListView Width="300" Grid.Row="1" ItemsSource="{Binding TaskList}" DisplayMemberPath="Desc" SelectedItem="{Binding SelectedTask}">
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="ListViewItem">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Border Grid.ColumnSpan="2" x:Name="BorderForSelect" Background="{StaticResource {x:Static SystemColors.HighlightBrushKey}}" Visibility="Collapsed"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding Desc}" Margin="2,0,0,0"/>
+                                        </Grid>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsSelected" Value="true">
+                                                <Setter TargetName="BorderForSelect" Property="Visibility" Value="Visible"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                </ListView>
             </Grid>
         </Grid>
     </Grid>

@@ -28,9 +28,26 @@ namespace TravianTools.Utils.DataBase
 
             var lst = JsonConvert.DeserializeObject<List<TempTask>>(File.ReadAllText($"{g.Settings.UserDataPath}\\TemplateTaskCollection"),
                                                                      new JsonSerializerSettings() { Converters = new List<JsonConverter>() { new CommandConverter() } });
+            var ids = lst.Select(x => x.TempTaskListId).Distinct().ToList();
+            foreach (var list in ids.Select(x => lst.Where(c => c.TempTaskListId == x).ToList()))
+            {
+                for (var i = 0; i < list.Count; i++)
+                    list[i].Number = i;
+            }
+
             SetDesc(lst);
             return lst;
         }
+
+        public TempTask GetNextTask(int tlId, int id)
+        {
+            var lst = GetAllByTaskListId(tlId);
+            var ind = lst.IndexOf(lst.First(x => x.Id == id));
+            return ind + 1 == lst.Count ? null : lst[ind + 1];
+        }
+
+        public TempTask GetNextTask(TempTask t) => GetNextTask(t.TempTaskListId, t.Id);
+        
 
         public List<TempTask> GetAllByTaskListId(int id)
         {
@@ -39,6 +56,9 @@ namespace TravianTools.Utils.DataBase
 
         public void SaveAll(List<TempTask> lst)
         {
+            lst = lst.OrderBy(x => x.TempTaskListId).ThenBy(x => x.Id).ToList();
+            
+            
             File.WriteAllText($"{g.Settings.UserDataPath}\\TemplateTaskCollection", JsonConvert.SerializeObject(lst, Formatting.Indented));
         }
 
@@ -83,10 +103,20 @@ namespace TravianTools.Utils.DataBase
                 if (x.Command.Type == typeof(BuildingUpgradeCmd).ToString())
                 {
                     var cmd = (BuildingUpgradeCmd)x.Command;
-                    x.Desc = $"{CommandTypesData.GetByType(typeof(BuildingUpgradeCmd)).Name} {BuildingsData.GetById(cmd.BuildingType).Name} " +
+                    x.Desc = $"[{x.Number}] {CommandTypesData.GetByType(typeof(BuildingUpgradeCmd)).Name}: {BuildingsData.GetById(cmd.BuildingType).Name} " +
                              $"{{{NonExitsVillagesData.VillageList.FirstOrDefault(c => c.Id == cmd.VillageId).Name}; {cmd.LocationId}}}";
                     x.CommandString = CommandTypesData.GetByType(typeof(BuildingUpgradeCmd)).Name;
                 }
+                if (x.Command.Type == typeof(BuildingDestroyCmd).ToString())
+                {
+                    var cmd = (BuildingDestroyCmd)x.Command;
+                    x.Desc = $"[{x.Number}]{CommandTypesData.GetByType(typeof(BuildingDestroyCmd)).Name}: {BuildingsData.GetById(cmd.BuildingType).Name} " +
+                             $"{{{NonExitsVillagesData.VillageList.FirstOrDefault(c => c.Id == cmd.VillageId).Name}}}";
+                    x.CommandString = CommandTypesData.GetByType(typeof(BuildingDestroyCmd)).Name;
+                }
+
+                if(!string.IsNullOrEmpty(x.Note))
+                    x.Desc += $" //{x.Note}";
             }
         }
 

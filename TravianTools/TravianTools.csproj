@@ -116,6 +116,7 @@
     <Compile Include="TravianUtils\Http.cs" />
     <Compile Include="TravianUtils\MapSolver.cs" />
     <Compile Include="TravianUtils\RPG.cs" />
+    <Compile Include="TravianUtils\TaskListExecutor.cs" />
     <Compile Include="TravianUtils\TRequest.cs" />
     <Compile Include="Utils\CryptoRNG.cs" />
     <Compile Include="Utils\DataBase\TempTaskService.cs" />

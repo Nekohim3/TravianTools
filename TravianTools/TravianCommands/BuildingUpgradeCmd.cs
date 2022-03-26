@@ -64,66 +64,116 @@ namespace TravianTools.TravianCommands
             }
         }
 
+        private bool _buildInst;
+
+        public bool BuildInst
+        {
+            get => _buildInst;
+            set
+            {
+                _buildInst = value;
+                RaisePropertyChanged(() => BuildInst);
+            }
+        }
+
         public BuildingUpgradeCmd() : base(null)
         {
             
         }
 
-        public BuildingUpgradeCmd(Account acc, int villageId, int locationId, int buildingType, bool useNpc) : base(acc)
+        public BuildingUpgradeCmd(Account acc, int villageId, int locationId, int buildingType, bool useNpc, bool buildInst) : base(acc)
         {
             VillageId    = villageId;
             LocationId   = locationId;
             BuildingType = buildingType;
             UseNpc       = useNpc;
+            BuildInst    = buildInst;
         }
 
-        public override void Execute()
+        public override bool Execute()
         {
-            Village village = null;
+            Village village;
             if (VillageId < 0 && Account.Player.VillageList.Count < Math.Abs(VillageId))
             {
                 Account.Player.UpdateVillageList();
                 village   = Account.Player.VillageList[Math.Abs(VillageId)];
                 VillageId = village.Id;
             }
+            else
+            {
+                return false;
+            }
 
+            village.UpdateBuildingList();
+            
             var building = village.BuildingList.FirstOrDefault(x => x.BuildingType == BuildingType);
             if (building == null)
             {
-                var freePlaceList = village.BuildingList.Where(x => x.BuildingType == 0).ToList();
-                LocationId = freePlaceList[g.Rand.Next(0, freePlaceList.Count)].Location;
+                if (LocationId == 0)
+                {
+                    var freePlaceList = village.BuildingList.Where(x => x.BuildingType == 0).ToList();
+                    LocationId = freePlaceList[g.Rand.Next(0, freePlaceList.Count)].Location;
+                }
+
                 building   = new Building(null) {UpgradeCost = BuildingsData.GetById(BuildingType).BuildRes};
             }
             else
                 LocationId = building.Location;
 
-            village.Update();
-            if (UseNpc)
+            if (!building.IsRuin)
             {
-                while (village.Storage.MultiRes < building.UpgradeCost.MultiRes))
+                village.Update();
+                if (UseNpc)
                 {
-                    Thread.Sleep(10000);
-                    village.Update();
+                    while (village.Storage.MultiRes < building.UpgradeCost.MultiRes)
+                    {
+                        Thread.Sleep(10000);
+                        if (!Account.TaskListExecutor.Working) return false;
+                        village.Update();
+                    }
                 }
-            }
-            else
-            {
-                while (!village.Storage.IsGreaterOrEq(building.UpgradeCost))
+                else
+                {
+                    while (!village.Storage.IsGreaterOrEq(building.UpgradeCost))
+                    {
+                        Thread.Sleep(10000);
+                        if (!Account.TaskListExecutor.Working) return false;
+                        village.Update();
+                    }
+                }
+
+                village.UpdateBuildingQueue();
+                while (village.Queue.FreeSlots.First(x => x.id == 1).freeCount == 0 ||
+                       village.Queue.FreeSlots.First(x => x.id == 2).freeCount == 0)
                 {
                     Thread.Sleep(10000);
-                    village.Update();
+                    if (!Account.TaskListExecutor.Working) return false;
+                    village.UpdateBuildingQueue();
+                }
+
+                village.Update();
+
+                if (UseNpc && !village.Storage.IsGreaterOrEq(building.UpgradeCost))
+                {
+                    if (village.Storage.AddProduction(village.Production).IsGreaterOrEq(building.UpgradeCost))
+                        Thread.Sleep(5 * 1000 * 60);
+                    else
+                        Account.Driver.NpcTrade(VillageId, village.Storage.Npc(building.UpgradeCost));
                 }
             }
 
-            village.UpdateBuildingQueue();
-            while (village.Queue.FreeSlots.First(x => x.id == 1).freeCount == 0 ||
-                   village.Queue.FreeSlots.First(x => x.id == 2).freeCount == 0)
-            {
-                Thread.Sleep(10000);
-                village.UpdateBuildingQueue();
-            }
-            
             Account.Driver.BuildingUpgrade(VillageId, LocationId, BuildingType);
+
+            if (BuildInst)
+            {
+                var q = village.Queue.Queue.First(x => x.idq == (LocationId > 18 ? 2 : 1));
+                if (village.Queue.UpdateTimeStamp + 295 >= q.finishTime)
+                    Account.Driver.FinishNow(VillageId, q.idq, 0);
+                else
+                    Account.Driver.FinishNow(VillageId, q.idq, Account.Player.Hero.HasBuildItem ? -1 : 1);
+            }
+
+            return true;
         }
     }
     

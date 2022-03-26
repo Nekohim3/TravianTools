@@ -23,6 +23,18 @@ namespace TravianTools.Data
             }
         }
 
+        private bool _isRuin;
+
+        public bool IsRuin
+        {
+            get => _isRuin;
+            set
+            {
+                _isRuin = value;
+                RaisePropertyChanged(() => IsRuin);
+            }
+        }
+
         private int _buildingType;
 
         public int BuildingType
@@ -153,6 +165,7 @@ namespace TravianTools.Data
             BuildingType = Convert.ToInt32(data.data.buildingType);
             Location     = Convert.ToInt32(data.data.locationId);
             Level        = Convert.ToInt32(data.data.lvl);
+            IsRuin       = data.data.rubble != null;
             MaxLevel     = data.data.lvlMax;
             UpgradeCost = new Resource(
                                        data.data.upgradeCosts["1"],

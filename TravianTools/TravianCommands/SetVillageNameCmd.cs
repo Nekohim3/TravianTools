@@ -26,9 +26,10 @@ namespace TravianTools.TravianCommands
             VillageName = name;
         }
 
-        public override void Execute()
+        public override bool Execute()
         {
             //Http.Post(RPG.SetVillageName(Account.Session, VillageId, VillageName));
+            return true;
         }
     }
 }

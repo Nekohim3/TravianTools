@@ -39,8 +39,9 @@ namespace TravianTools
 
         public static void Shutdown()
         {
-            foreach (var x in Accounts.AccountList.Where(x => x.Running))
-                x.Stop();
+            if(Accounts.AccountList != null)
+                foreach (var x in Accounts.AccountList)
+                    x.Stop();
         }
     }
 
@@ -70,6 +71,7 @@ namespace TravianTools
                 _selectedAccount = value;
                 RaisePropertyChanged(() => SelectedAccount);
                 g.MainWindowViewModel?.RaiseCanExecChange();
+                g.MainWindowViewModel?.TaskListInit();
             }
         }
 
@@ -96,6 +98,7 @@ namespace TravianTools
 
         public static void Save()
         {
+            if(g.Accounts.AccountList == null) return;
             File.WriteAllText($"{g.Settings.UserDataPath}\\Accounts", JsonConvert.SerializeObject(g.Accounts, Formatting.Indented));
         }
 

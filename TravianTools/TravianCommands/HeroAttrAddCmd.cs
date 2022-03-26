@@ -32,9 +32,10 @@ namespace TravianTools.TravianCommands
             ResBonusType        = resBonusType;
         }
 
-        public override void Execute()
+        public override bool Execute()
         {
             //Http.Post(RPG.HeroAttribute(Account.Session, FightStrengthPoints, AttBonusPoints, DefBonusPoints, ResBonusPoints, ResBonusType));
+            return true;
         }
     }
 }

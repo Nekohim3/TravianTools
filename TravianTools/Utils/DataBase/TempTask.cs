@@ -10,6 +10,7 @@ using TravianTools.TravianCommands;
 
 namespace TravianTools.Utils.DataBase
 {
+    public enum TaskStatus{Wait, Exec, Finished, Error}
     public class TempTask : NotificationObject
     {
         private int _id;
@@ -36,6 +37,18 @@ namespace TravianTools.Utils.DataBase
             }
         }
 
+        private TaskStatus _status;
+
+        public TaskStatus Status
+        {
+            get => _status;
+            set
+            {
+                _status = value;
+                RaisePropertyChanged(() => Status);
+            }
+        }
+
         private int _tempTaskListId;
 
         public int TempTaskListId
@@ -48,6 +61,30 @@ namespace TravianTools.Utils.DataBase
             }
         }
 
+        private int _number;
+        [JsonIgnore]
+        public int Number
+        {
+            get => _number;
+            set
+            {
+                _number = value;
+                RaisePropertyChanged(() => Number);
+            }
+        }
+
+        private string _note;
+
+        public string Note
+        {
+            get => _note;
+            set
+            {
+                _note = value;
+                RaisePropertyChanged(() => Note);
+            }
+        }
+
         private BaseCommand _command;
 
         public BaseCommand Command
@@ -56,6 +93,8 @@ namespace TravianTools.Utils.DataBase
             set
             {
                 _command = value;
+                if(value != null)
+                    CommandType = CommandTypesData.GetByType(Command?.GetType());
                 RaisePropertyChanged(() => Command);
             }
         }

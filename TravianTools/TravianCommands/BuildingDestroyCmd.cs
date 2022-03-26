@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using TravianTools.Data;
+using TravianTools.Data.StaticData;
 using TravianTools.TravianUtils;
 
 namespace TravianTools.TravianCommands
@@ -24,18 +26,6 @@ namespace TravianTools.TravianCommands
             }
         }
 
-        private int _locationId;
-
-        public int LocationId
-        {
-            get => _locationId;
-            set
-            {
-                _locationId = value;
-                RaisePropertyChanged(() => LocationId);
-            }
-        }
-
         private int _buildingType;
 
         public int BuildingType
@@ -48,15 +38,39 @@ namespace TravianTools.TravianCommands
             }
         }
 
-        private bool _useNpc;
+        private bool _buildInst;
 
-        public bool UseNpc
+        public bool BuildInst
         {
-            get => _useNpc;
+            get => _buildInst;
             set
             {
-                _useNpc = value;
-                RaisePropertyChanged(() => UseNpc);
+                _buildInst = value;
+                RaisePropertyChanged(() => BuildInst);
+            }
+        }
+
+        private bool _disassemble;
+
+        public bool Disassemble
+        {
+            get => _disassemble;
+            set
+            {
+                _disassemble = value;
+                RaisePropertyChanged(() => Disassemble);
+            }
+        }
+
+        private bool _disassembleInst;
+
+        public bool DisassembleInst
+        {
+            get => _disassembleInst;
+            set
+            {
+                _disassembleInst = value;
+                RaisePropertyChanged(() => DisassembleInst);
             }
         }
 
@@ -66,23 +80,87 @@ namespace TravianTools.TravianCommands
             
         }
 
-        public BuildingDestroyCmd(Account acc, int villageId, int locationId, int buildingType, bool useNpc) : base(acc)
+        public BuildingDestroyCmd(Account acc, int villageId, int buildingType, bool buildInst, bool dis, bool disInst) : base(acc)
         {
             VillageId    = villageId;
-            LocationId   = locationId;
             BuildingType = buildingType;
-            UseNpc       = useNpc;
+            BuildInst    = buildInst;
+            Disassemble = dis;
+            DisassembleInst = disInst;
         }
 
-        public override void Execute()
+        public override bool Execute()
         {
-            if (VillageId <= 0)
+            var     locId = 0;
+            Village village;
+            if (VillageId < 0 && Account.Player.VillageList.Count < Math.Abs(VillageId))
             {
-                //Account.Player.UpdateAll();
-                VillageId = Account.Player.VillageList[Math.Abs(VillageId)].Id;
+                Account.Player.UpdateVillageList();
+                village = Account.Player.VillageList[Math.Abs(VillageId)];
+                VillageId = village.Id;
+            }
+            else
+            {
+                return false;
             }
 
-            //Http.Post(RPG.BuildingDestroy(Account.Session, VillageId, LocationId));
+            village.UpdateBuildingList();
+
+            var building = village.BuildingList.FirstOrDefault(x => x.BuildingType == BuildingType);
+            if (building == null)
+            {
+                return false;
+            }
+            else
+                locId = building.Location;
+
+            village.UpdateBuildingQueue();
+            while (village.Queue.FreeSlots.First(x => x.id == 5).freeCount == 0)
+            {
+                Thread.Sleep(10000);
+                if (!Account.TaskListExecutor.Working) return false;
+                village.UpdateBuildingQueue();
+            }
+
+            if (building.IsRuin) return false;
+
+            Account.Driver.BuildingDestroy(VillageId, locId);
+
+            if (BuildInst)
+            {
+                var q = village.Queue.Queue.First(x => x.idq == 5);
+                if (village.Queue.UpdateTimeStamp + 295 >= q.finishTime)
+                    Account.Driver.FinishNow(VillageId, q.idq, 0);
+                else
+                    Account.Driver.FinishNow(VillageId, q.idq, Account.Player.Hero.HasBuildItem ? -1 : 1);
+            }
+
+            if (Disassemble)
+            {
+                if (!BuildInst)
+                {
+                    village.UpdateBuildingQueue();
+                    while (village.Queue.FreeSlots.First(x => x.id == 5).freeCount == 0)
+                    {
+                        Thread.Sleep(10000);
+                        if (!Account.TaskListExecutor.Working) return false;
+                        village.UpdateBuildingQueue();
+                    }
+                }
+
+                Account.Driver.BuildingUpgrade(VillageId, locId, BuildingType);
+
+                if (DisassembleInst)
+                {
+                    var q = village.Queue.Queue.First(x => x.idq == 2);
+                    if (village.Queue.UpdateTimeStamp + 295 >= q.finishTime)
+                        Account.Driver.FinishNow(VillageId, q.idq, 0);
+                    else
+                        Account.Driver.FinishNow(VillageId, q.idq, Account.Player.Hero.HasBuildItem ? -1 : 1);
+                }
+            }
+
+            return true;
         }
     }
 }

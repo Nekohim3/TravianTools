@@ -64,7 +64,7 @@ namespace TravianTools.TravianUtils
         {
             while (Working)
             {
-                if (Account.Running)
+                if (Account.Running && Account.RegistrationComplete)
                 {
                     Account.Driver.GetCache(Account.Player.VillageList.Select(x => $"BuildingQueue:{x.Id}").ToList());
                     foreach (var x in Account.Player.VillageList)

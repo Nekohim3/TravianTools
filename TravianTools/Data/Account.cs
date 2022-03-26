@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Documents;
 using System.Xml.Serialization;
 using Microsoft.Practices.Prism.ViewModel;
 using Newtonsoft.Json;
@@ -69,14 +70,55 @@ namespace TravianTools.Data
                 RaisePropertyChanged(() => UseProxy);
             }
         }
-        
+
+        private bool _useFastBuilding;
+
         public bool UseFastBuilding
         {
-            get => FreeInstantBuilder.Working;
+            get => _useFastBuilding;
             set
             {
-                FreeInstantBuilder.Working = value;
+                _useFastBuilding = value;
                 RaisePropertyChanged(() => UseFastBuilding);
+                if (FreeInstantBuilder != null)
+                    FreeInstantBuilder.Working = value;
+                Accounts.Save();
+            }
+        }
+
+        private int _currentTaskListId;
+
+        public int CurrentTaskListId
+        {
+            get => _currentTaskListId;
+            set
+            {
+                _currentTaskListId = value;
+                RaisePropertyChanged(() => CurrentTaskListId);
+            }
+        }
+
+        private int _currentTaskId;
+
+        public int CurrentTaskId
+        {
+            get => _currentTaskId;
+            set
+            {
+                _currentTaskId = value;
+                RaisePropertyChanged(() => CurrentTaskId);
+            }
+        }
+
+        private TaskListExecutor _taskListExecutor;
+        [JsonIgnore]
+        public TaskListExecutor TaskListExecutor
+        {
+            get => _taskListExecutor;
+            set
+            {
+                _taskListExecutor = value;
+                RaisePropertyChanged(() => TaskListExecutor);
             }
         }
         
@@ -135,9 +177,9 @@ namespace TravianTools.Data
 
         public Account()
         {
-            Password           = "KuroNeko2112";
-            Player             = new Player(this);
-            FreeInstantBuilder = new FreeInstantBuild(this);
+            Password         = "KuroNeko2112";
+            Player           = new Player(this);
+            TaskListExecutor = new TaskListExecutor(this);
         }
 
         public void Run(Account acc)
@@ -158,6 +200,7 @@ namespace TravianTools.Data
                                                  if (ele != null)
                                                  {
                                                      UpdateAll();
+                                                     FreeInstantBuilder = new FreeInstantBuild(this){Working = UseFastBuilding};
                                                  }
                                              }
 
@@ -169,8 +212,10 @@ namespace TravianTools.Data
         {
             if (!Running) return;
             Logger.Info($"[{Name}]: Browser stop");
+            if(FreeInstantBuilder != null)
+                FreeInstantBuilder.Working = false;
             Driver.DeInit();
-            Driver = null;
+            Driver                     = null;
         }
 
         public bool UpdateAll()

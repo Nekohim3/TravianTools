@@ -10,6 +10,8 @@ namespace TravianTools.Data.StaticData
     public static class BuildingsData
     {
         public static List<BuildingData> BuildingList { get; set; }
+        public static List<BuildingData> InnerBuildingList { get; set; }
+        public static List<BuildingData> OuterBuildingList { get; set; }
 
         static BuildingsData()
         {
@@ -56,6 +58,9 @@ namespace TravianTools.Data.StaticData
             BuildingList.Add(new BuildingData(42, new Resource(740,   850,   960,   620,   -1), true,  AdditionalRestriction.Capital,               "Ров"));
             BuildingList.Add(new BuildingData(43, new Resource(120,   200,   0,     80,    -1), true,  AdditionalRestriction.None,                  "Натарская стена"));
             BuildingList.Add(new BuildingData(45, new Resource(720,   685,   645,   250,   -1), true,  AdditionalRestriction.NotWorldWonderVillage, "Скрытая сокровищница", (27, 0), (15, 3)));
+
+            InnerBuildingList = BuildingList.Where(x => x.Id > 4).ToList();
+            OuterBuildingList = BuildingList.Where(x => x.Id <= 4).ToList();
         }
 
         public static BuildingData GetById(int id) => BuildingList.FirstOrDefault(x => x.Id == id);

@@ -24,7 +24,7 @@ namespace TravianTools.TravianCommands
             Type    = GetType().ToString();
         }
 
-        public abstract void Execute();
+        public abstract bool Execute();
     }
 
     public class CommandConverter : JsonConverter

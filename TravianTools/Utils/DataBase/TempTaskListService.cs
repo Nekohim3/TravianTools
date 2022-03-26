@@ -33,6 +33,7 @@ namespace TravianTools.Utils.DataBase
 
         public void SaveAll(List<TempTaskList> lst)
         {
+            lst = lst.OrderBy(x => x.Id).ToList();
             File.WriteAllText($"{g.Settings.UserDataPath}\\TemplateTaskListCollection", JsonConvert.SerializeObject(lst, Formatting.Indented));
         }
 

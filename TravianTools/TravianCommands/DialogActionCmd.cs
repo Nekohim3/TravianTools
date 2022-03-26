@@ -30,9 +30,10 @@ namespace TravianTools.TravianCommands
             Input = input;
         }
 
-        public override void Execute()
+        public override bool Execute()
         {
             //Http.Post(RPG.DialogAction(Account.Session, QuestId, DialogId, Command, Input));
+            return true;
         }
     }
 }

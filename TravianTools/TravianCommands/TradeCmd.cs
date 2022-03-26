@@ -34,9 +34,10 @@ namespace TravianTools.TravianCommands
             KingdomOnly      = kingdomOnly;
         }
 
-        public override void Execute()
+        public override bool Execute()
         {
             //Http.Post(RPG.Trade(Account.Session, VillageId, OfferedResource, OfferedAmount, SearchedResource, SearchedAmount, KingdomOnly));
+            return true;
         }
     }
 }
