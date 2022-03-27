@@ -59,6 +59,7 @@ namespace TravianTools.TravianUtils
         public void Start(ObservableCollection<TempTask> col)
         {
             if (Working) return;
+            Working  = true;
             TaskList = col;
             foreach (var x in TaskList)
             {
@@ -81,8 +82,15 @@ namespace TravianTools.TravianUtils
 
         private void ThFunc()
         {
+            foreach (var x in TaskList.Select(x => x.Command))
+            {
+                x.Account = Account;
+            }
+
             while (Working)
             {
+                if (Account.CurrentTaskId == 0)
+                    Account.CurrentTaskId = TaskList.First().Id;
                 var task = TaskList.FirstOrDefault(x => x.Id == Account.CurrentTaskId);
                 if (task == null) Working = false;
                 else
@@ -94,11 +102,13 @@ namespace TravianTools.TravianUtils
                         if (ind + 1 == TaskList.Count)
                         {
                             Account.CurrentTaskId = int.MaxValue;
+                            Accounts.Save();
                             Working               = false;
                         }
                         else
                         {
                             Account.CurrentTaskId = TaskList[ind + 1].Id;
+                            Accounts.Save();
                         }
                     }
                     else

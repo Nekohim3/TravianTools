@@ -27,6 +27,7 @@
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
@@ -35,11 +36,13 @@
             </Grid.ColumnDefinitions>
             <Button Grid.Column="0" Margin="3,0,3,0" Command="{Binding ShowAccountsCmd}" Content="Аккаунты" Width="70"/>
             <Button Grid.Column="1" Margin="3,0,3,0" Command="{Binding SettingsCmd}" Content="Настройки" Width="70"/>
-            <Button Grid.Column="2" Margin="3,0,3,0" Width="120" Content="Запустить браузер" Command="{Binding StartBrowserCmd}" 
+            <Button Grid.Column="2" Margin="3,0,3,0" Command="{Binding RegCmd}" Content="Регистрация" Width="70"
+                    Visibility="{Binding Source={x:Static travianTools:g.Accounts}, Path=SelectedAccount.RegistrationComplete, Converter={StaticResource BoolToVisibilityReverseConverter}}"/>
+            <Button Grid.Column="3" Margin="3,0,3,0" Width="120" Content="Запустить браузер" Command="{Binding StartBrowserCmd}" 
                     Visibility="{Binding Source={x:Static travianTools:g.Accounts}, Path=SelectedAccount.Running, Converter={StaticResource BoolToVisibilityReverseConverter}}"/>
-            <Button Grid.Column="2" Margin="3,0,3,0" Width="120" Content="Остановить браузер" Command="{Binding StopBrowserCmd}" 
+            <Button Grid.Column="3" Margin="3,0,3,0" Width="120" Content="Остановить браузер" Command="{Binding StopBrowserCmd}" 
                     Visibility="{Binding Source={x:Static travianTools:g.Accounts}, Path=SelectedAccount.Running, Converter={StaticResource BoolToVisibilityConverter}}"/>
-            <Button Grid.Column="3" Content="TestUpdate" Command="{Binding TestUpdateCmd}"/>
+            <Button Grid.Column="4" Content="TestUpdate" Command="{Binding TestUpdateCmd}"/>
             <Button Grid.Column="7" Width="120" Content="Редактор шаблонов" Command="{Binding TaskListEditorCmd}" Margin="3,0,3,0"/>
             <Button Grid.Column="8" Width="70" Content="Таск лист" Command="{Binding TaskListCmd}" Margin="3,0,3,0"/>
         </Grid>
@@ -106,7 +109,12 @@
                 <TextBox Grid.Row="7" Text="{Binding AddAccount.Password, UpdateSourceTrigger=PropertyChanged}" Visibility="{Binding AddAccount, Converter={StaticResource ObjIsNullToVisibilityReverseConverter}}"/>
                 <TextBlock Grid.Row="8" Text="Рефка" Visibility="{Binding AddAccount, Converter={StaticResource ObjIsNullToVisibilityReverseConverter}}"/>
                 <TextBox Grid.Row="9" MaxWidth="150" Text="{Binding AddAccount.RefLink, UpdateSourceTrigger=PropertyChanged}" Visibility="{Binding AddAccount, Converter={StaticResource ObjIsNullToVisibilityReverseConverter}}"/>
-                <CheckBox Grid.Row="10" Content="Использовать прокси" HorizontalAlignment="Center" Margin="0,3" IsChecked="{Binding AddAccount.UseProxy}"  Visibility="{Binding AddAccount, Converter={StaticResource ObjIsNullToVisibilityReverseConverter}}"/>
+
+
+                <TextBlock Grid.Row="10" Text="Мыло" Visibility="{Binding AddAccount, Converter={StaticResource ObjIsNullToVisibilityReverseConverter}}"/>
+                <TextBox Grid.Row="11" MaxWidth="150" Text="{Binding AddAccount.Mail, UpdateSourceTrigger=PropertyChanged}" Visibility="{Binding AddAccount, Converter={StaticResource ObjIsNullToVisibilityReverseConverter}}"/>
+
+                <CheckBox Grid.Row="12" Content="Использовать прокси" HorizontalAlignment="Center" Margin="0,3" IsChecked="{Binding AddAccount.UseProxy}"  Visibility="{Binding AddAccount, Converter={StaticResource ObjIsNullToVisibilityReverseConverter}}"/>
                 <Button Grid.Row="13" Content="Сохранить" Command="{Binding SaveAccountCmd}" Visibility="{Binding AddAccount, Converter={StaticResource ObjIsNullToVisibilityReverseConverter}}" Margin="0,2,0,0"/>
                 <Button Grid.Row="14" Content="Отмена" Command="{Binding CancelAccountCmd}" Visibility="{Binding AddAccount, Converter={StaticResource ObjIsNullToVisibilityReverseConverter}}" Margin="0,2,0,0"/>
             </Grid>
@@ -150,10 +158,10 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <ComboBox Grid.Row="0" Margin="0,3" ItemsSource="{Binding TaskListList}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedTaskList}"/>
-                <Button Grid.Row="3" Margin="0,3" Content="Запустить" Command="{Binding }"/>
-                <Button Grid.Row="4" Margin="0,3" Content="Остановить" Command="{Binding }"/>
+                <Button Grid.Row="3" Margin="0,3" Content="Запустить" Command="{Binding TaskExecRunCmd}"/>
+                <Button Grid.Row="4" Margin="0,3" Content="Остановить" Command="{Binding TestExecStop}"/>
                 <Button Grid.Row="5" Margin="0,3" Content="Сменить активную задачу" Command="{Binding }"/>
-                <ListView Width="300" Grid.Row="1" ItemsSource="{Binding TaskList}" DisplayMemberPath="Desc" SelectedItem="{Binding SelectedTask}">
+                <ListView Width="300" Grid.Row="1" ItemsSource="{Binding TaskList}" DisplayMemberPath="Desc" SelectedItem="{Binding SelectedTask}" IsEnabled="False">
                     <ListView.ItemContainerStyle>
                         <Style TargetType="ListViewItem">
                             <Setter Property="Template">
@@ -165,13 +173,29 @@
                                                 <ColumnDefinition Width="*"/>
                                                 <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
-                                            <Border Grid.ColumnSpan="2" x:Name="BorderForSelect" Background="{StaticResource {x:Static SystemColors.HighlightBrushKey}}" Visibility="Collapsed"/>
+                                            <Border Grid.ColumnSpan="2" x:Name="BorderForSelect" BorderThickness="1" Background="{StaticResource {x:Static SystemColors.InactiveSelectionHighlightBrushKey}}"/>
                                             <TextBlock Grid.Column="1" Text="{Binding Desc}" Margin="2,0,0,0"/>
                                         </Grid>
                                         <ControlTemplate.Triggers>
                                             <Trigger Property="IsSelected" Value="true">
-                                                <Setter TargetName="BorderForSelect" Property="Visibility" Value="Visible"/>
+                                                <Setter TargetName="BorderForSelect" Property="BorderBrush" Value="Purple"/>
                                             </Trigger>
+                                            <Trigger Property="IsSelected" Value="False">
+                                                <Setter TargetName="BorderForSelect" Property="BorderBrush" Value="Transparent"/>
+                                            </Trigger>
+                                            <DataTrigger Binding="{Binding Status}" Value="Wait">
+                                                <Setter TargetName="BorderForSelect" Property="Background" Value="Orange"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Status}" Value="Error">
+                                                <Setter TargetName="BorderForSelect" Property="Background" Value="OrangeRed"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Status}" Value="Exec">
+                                                <Setter TargetName="BorderForSelect" Property="Background" Value="Aqua"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Status}" Value="Finished">
+                                                <Setter TargetName="BorderForSelect" Property="Background" Value="LimeGreen"/>
+                                            </DataTrigger>
+
                                         </ControlTemplate.Triggers>
                                     </ControlTemplate>
                                 </Setter.Value>

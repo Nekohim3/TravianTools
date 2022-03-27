@@ -106,6 +106,8 @@ namespace TravianTools.TravianCommands
 
             village.UpdateBuildingList();
 
+            var gz       = village.BuildingList.FirstOrDefault(x => x.BuildingType == 15);
+            if (gz == null) return false;
             var building = village.BuildingList.FirstOrDefault(x => x.BuildingType == BuildingType);
             if (building == null)
             {

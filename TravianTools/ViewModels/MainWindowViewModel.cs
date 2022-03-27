@@ -3,8 +3,14 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Mail;
 using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
@@ -12,6 +18,10 @@ using System.Windows.Media;
 using Microsoft.Practices.Prism.Commands;
 using Microsoft.Practices.Prism.ViewModel;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using RestSharp;
+using SmorcIRL.TempMail;
+using SmorcIRL.TempMail.Models;
 using TravianTools.Data;
 using TravianTools.TravianCommands;
 using TravianTools.TravianUtils;
@@ -23,6 +33,9 @@ namespace TravianTools.ViewModels
     public class MainWindowViewModel : NotificationObject
     {
         #region Properties
+
+        public MailClient MClient   { get; set; }
+        public Thread     RegThread { get; set; }
 
         private Account _addAccount;
 
@@ -92,16 +105,16 @@ namespace TravianTools.ViewModels
             set
             {
                 _selectedTaskList = value;
-                RaisePropertyChanged(() => SelectedTaskList);
                 if (value != null)
                 {
                     g.Accounts.SelectedAccount.CurrentTaskListId = value.Id;
                     if (value.Id == 0)
                         g.Accounts.SelectedAccount.CurrentTaskId = 0;
-                    TaskList                                     = new ObservableCollection<TempTask>(g.TempTaskService.GetAllByTaskListId(value.Id));
-                    SelectedTask                                 = TaskList.FirstOrDefault(x => x.Id == g.Accounts.SelectedAccount.CurrentTaskId);
+                    TaskList     = new ObservableCollection<TempTask>(g.TempTaskService.GetAllByTaskListId(value.Id));
+                    SelectedTask = TaskList.FirstOrDefault(x => x.Id == g.Accounts.SelectedAccount.CurrentTaskId);
                     Accounts.Save();
                 }
+                RaisePropertyChanged(() => SelectedTaskList);
 
             }
         }
@@ -145,7 +158,8 @@ namespace TravianTools.ViewModels
         public DelegateCommand CancelAccountCmd { get; }
 
         public DelegateCommand ShowAccountsCmd { get; }
-        public DelegateCommand SettingsCmd        { get; }
+        public DelegateCommand SettingsCmd     { get; }
+        public DelegateCommand RegCmd          { get; set; }
 
         public DelegateCommand StartBrowserCmd { get; }
         public DelegateCommand StopBrowserCmd  { get; }
@@ -154,7 +168,9 @@ namespace TravianTools.ViewModels
         public DelegateCommand TaskListEditorCmd { get; }
         public DelegateCommand ShowDataCmd       { get; }
 
-        public DelegateCommand TestUpdateCmd { get; }
+        public DelegateCommand TestUpdateCmd  { get; }
+        public DelegateCommand TaskExecRunCmd { get; }
+        public DelegateCommand TestExecStop   { get; }
 
         #endregion
 
@@ -179,34 +195,81 @@ namespace TravianTools.ViewModels
 
             TestUpdateCmd = new DelegateCommand(OnTestUpdateCmd);
 
+            TaskExecRunCmd = new DelegateCommand(OnTaskExecRun,  () => SelectedTaskList != null);
+            TestExecStop   = new DelegateCommand(OnTaskExecStop, () => SelectedTaskList != null);
+
+            RegCmd = new DelegateCommand(OnReg, () => g.Accounts.SelectedAccount != null && g.Accounts.SelectedAccount.Running && !g.Accounts.SelectedAccount.RegistrationComplete);
+
             ShowAccounts = true;
             ShowTaskList = true;
         }
 
         public void TaskListInit()
         {
+            if(g.Accounts.SelectedAccount == null) return;
             TaskListList = new ObservableCollection<TempTaskList>(g.TempTaskListService.GetAll());
             TaskListList.Insert(0, new TempTaskList() {Id = 0, Name = "Не выбрано"});
             SelectedTaskList = TaskListList.FirstOrDefault(x => x.Id == g.Accounts.SelectedAccount.CurrentTaskListId);
-
+            RaiseCanExecChange();
         }
 
         #endregion
 
         #region CmdExec
 
+        private void OnTaskExecRun()
+        {
+            g.Accounts.SelectedAccount.TaskListExecutor.Start(TaskList);
+        }
+
+        private void OnTaskExecStop()
+        {
+            g.Accounts.SelectedAccount.TaskListExecutor.Stop();
+        }
+
         private void OnShowData()
         {
             ShowData = !ShowData;
         }
 
+        private void OnReg()
+        {
+            g.Accounts.SelectedAccount.Driver.Registration();
+        }
+
         private void OnTestUpdateCmd()
         {
-            var q = g.Accounts.SelectedAccount.Driver.PostJo(RPG.FinishBuild(g.Accounts.SelectedAccount.Driver.GetSession(), 0, 0, 1));
+            //qwe();
+            //var q = g.Accounts.SelectedAccount.Driver.PostJo(RPG.FinishBuild(g.Accounts.SelectedAccount.Driver.GetSession(), 0, 0, 1));
             //var cmd = new BuildingUpgradeCmd(g.Accounts.SelectedAccount, 0, 25, 17, false) as BaseCommand;
             //cmd.Execute();
             //g.Accounts.SelectedAccount.UpdateAll();
+            var client = new MailClient();
+            client.Login("nekohim3g2x@cutradition.com", "KuroNeko2112").GetAwaiter().GetResult();
+            var msgs    = client.GetMessages(1).GetAwaiter().GetResult();
+            var travMsg = msgs.FirstOrDefault(x => x.Subject.ToLower().Contains("travian kingdoms"));
+            var msg     = client.GetMessageSource(travMsg.Id).GetAwaiter().GetResult();
+            var str     = g.DecodeQuotedPrintables(msg.Data);
+            var ind     = str.IndexOf("http://www.kingdoms.com/ru/#action=activation;token=");
+            var sstr    = str.Substring(ind, 92);
+            //var domain = client.GetFirstAvailableDomainName().GetAwaiter().GetResult();
+            //var name = $"{g.Accounts.SelectedAccount.Name}{g.RandomString(3)}".ToLower();
+            //client.Register($"{name}@{domain}", $"{g.Accounts.SelectedAccount.Password}").GetAwaiter().GetResult();
+
         }
+        
+
+        //private async System.Threading.Tasks.Task qwe()
+        //{
+        //    var client = new MailClient();
+            
+        //    var domain = await client.GetFirstAvailableDomainName();
+        //    var name = $"Nekohime322F2";
+        //    await client.Register($"{name}@{domain}", $"Qwe123qWe");
+        //    //acc = await client.GetAccountInfo();
+        //}
+
+        public AccountInfo acc { get; set; }
 
         private void OnTaskListEditor()
         {
@@ -214,7 +277,7 @@ namespace TravianTools.ViewModels
             var vm = new TemplateTaskListViewModel();
             f.DataContext = vm;
             f.ShowDialog();
-            
+            TaskListInit();
         }
 
         private void OnTaskList()
@@ -239,7 +302,11 @@ namespace TravianTools.ViewModels
             if (MessageBox.Show("После изменения настроек приложение закроется, и нужно будет открыть заного. Продолжить?", "", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
                 var f  = new ServerSettingsView();
-                var vm = new ServerSettingsViewModel(f.Close) {Domain = g.Settings.Domain, Server = g.Settings.Server, Proxy = g.Settings.Proxy};
+                var vm = new ServerSettingsViewModel(f.Close)
+                         {
+                             Domain    = g.Settings.Domain, Server = g.Settings.Server, ProxyAddr = g.Settings.ProxyAddr, ProxyPort = g.Settings.ProxyPort, ProxyLogin = g.Settings.ProxyLogin,
+                             ProxyPass = g.Settings.ProxyPass
+                         };
                 f.DataContext = vm;
                 f.ShowDialog();
                 Application.Current.Shutdown();
@@ -295,9 +362,13 @@ namespace TravianTools.ViewModels
             CancelAccountCmd.RaiseCanExecuteChanged();
             StartBrowserCmd.RaiseCanExecuteChanged();
             StopBrowserCmd.RaiseCanExecuteChanged();
+            TaskExecRunCmd.RaiseCanExecuteChanged();
+            TestExecStop.RaiseCanExecuteChanged();
+            RegCmd.RaiseCanExecuteChanged();
         }
 
         #endregion
+        
     }
 
     [ValueConversion(typeof(object), typeof(Visibility))]

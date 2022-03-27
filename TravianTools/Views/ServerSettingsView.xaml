@@ -6,9 +6,12 @@
         xmlns:local="clr-namespace:TravianTools.Views"
         xmlns:viewModels="clr-namespace:TravianTools.ViewModels"
         mc:Ignorable="d" WindowStartupLocation="CenterScreen" d:DataContext="{d:DesignInstance viewModels:ServerSettingsViewModel}"
-        Title="ServerSettingsView" Height="150" Width="300" Closing="ServerSettingsView_OnClosing">
+        Title="ServerSettingsView" Height="230" Width="300" Closing="ServerSettingsView_OnClosing">
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -23,8 +26,14 @@
         <TextBox Grid.Row="0" Grid.Column="1" Margin="3" Text="{Binding Server, UpdateSourceTrigger=PropertyChanged}"/>
         <TextBlock Grid.Column="0" Grid.Row="1" Text="Domain" Margin="3"/>
         <TextBox Grid.Row="1" Grid.Column="1" Margin="3" Text="{Binding Domain, UpdateSourceTrigger=PropertyChanged}"/>
-        <TextBlock Grid.Column="0" Grid.Row="2" Text="Proxy" Margin="3"/>
-        <TextBox Grid.Row="2" Grid.Column="1" Margin="3" Text="{Binding Proxy, UpdateSourceTrigger=PropertyChanged}"/>
-        <Button Grid.Row="3" Grid.ColumnSpan="2" Width="100" Content="Сохранить" Command="{Binding SaveCmd}"/>
+        <TextBlock Grid.Column="0" Grid.Row="2" Text="Proxy IP" Margin="3"/>
+        <TextBox Grid.Row="2" Grid.Column="1" Margin="3" Text="{Binding ProxyAddr, UpdateSourceTrigger=PropertyChanged}"/>
+        <TextBlock Grid.Column="0" Grid.Row="3" Text="Proxy port" Margin="3"/>
+        <TextBox Grid.Row="3" Grid.Column="1" Margin="3" Text="{Binding ProxyPort, UpdateSourceTrigger=PropertyChanged}"/>
+        <TextBlock Grid.Column="0" Grid.Row="4" Text="Proxy login" Margin="3"/>
+        <TextBox Grid.Row="4" Grid.Column="1" Margin="3" Text="{Binding ProxyLogin, UpdateSourceTrigger=PropertyChanged}"/>
+        <TextBlock Grid.Column="0" Grid.Row="5" Text="Proxy pass" Margin="3"/>
+        <TextBox Grid.Row="5" Grid.Column="1" Margin="3" Text="{Binding ProxyPass, UpdateSourceTrigger=PropertyChanged}"/>
+        <Button Grid.Row="7" Grid.ColumnSpan="2" Grid.Column="0" Width="100" Content="Сохранить" Command="{Binding SaveCmd}"/>
     </Grid>
 </Window>

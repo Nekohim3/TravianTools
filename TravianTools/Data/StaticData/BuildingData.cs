@@ -132,6 +132,7 @@ namespace TravianTools.Data.StaticData
             Name         = name;
             CanBuildIm   = canBuildIm;
             AddRest      = rest;
+            BuildRes     = res;
             Dependencies = args.ToList();
         }
     }

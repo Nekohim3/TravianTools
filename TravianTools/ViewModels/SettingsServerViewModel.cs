@@ -38,13 +38,49 @@ namespace TravianTools.ViewModels
 
         private string _proxy;
 
-        public string Proxy
+        public string ProxyAddr
         {
             get => _proxy;
             set
             {
                 _proxy = value;
-                RaisePropertyChanged(() => Proxy);
+                RaisePropertyChanged(() => ProxyAddr);
+            }
+        }
+
+        private int _proxyPort;
+
+        public int ProxyPort
+        {
+            get => _proxyPort;
+            set
+            {
+                _proxyPort = value;
+                RaisePropertyChanged(() => ProxyPort);
+            }
+        }
+
+        private string _proxyLogin;
+
+        public string ProxyLogin
+        {
+            get => _proxyLogin;
+            set
+            {
+                _proxyLogin = value;
+                RaisePropertyChanged(() => ProxyLogin);
+            }
+        }
+
+        private string _proxyPass;
+
+        public string ProxyPass
+        {
+            get => _proxyPass;
+            set
+            {
+                _proxyPass = value;
+                RaisePropertyChanged(() => ProxyPass);
             }
         }
 
@@ -66,9 +102,12 @@ namespace TravianTools.ViewModels
                 return;
             }
 
-            g.Settings.Domain = Domain;
-            g.Settings.Server = Server;
-            g.Settings.Proxy  = Proxy;
+            g.Settings.Domain     = Domain;
+            g.Settings.Server     = Server;
+            g.Settings.ProxyAddr  = ProxyAddr;
+            g.Settings.ProxyPort  = ProxyPort;
+            g.Settings.ProxyLogin = ProxyLogin;
+            g.Settings.ProxyPass  = ProxyPass;
             Settings.Save();
             _close.Invoke();
         }

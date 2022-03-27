@@ -90,13 +90,13 @@ namespace TravianTools.TravianCommands
             BuildInst    = buildInst;
         }
 
-        public override bool Execute()
+        public override bool Execute() 
         {
             Village village;
-            if (VillageId < 0 && Account.Player.VillageList.Count < Math.Abs(VillageId))
+            if (VillageId < 0 && Account.Player.VillageList.Count >= Math.Abs(VillageId))
             {
                 Account.Player.UpdateVillageList();
-                village   = Account.Player.VillageList[Math.Abs(VillageId)];
+                village   = Account.Player.VillageList[Math.Abs(VillageId) - 1];
                 VillageId = village.Id;
             }
             else
@@ -155,9 +155,9 @@ namespace TravianTools.TravianCommands
 
                 if (UseNpc && !village.Storage.IsGreaterOrEq(building.UpgradeCost))
                 {
-                    if (village.Storage.AddProduction(village.Production).IsGreaterOrEq(building.UpgradeCost))
-                        Thread.Sleep(5 * 1000 * 60);
-                    else
+                    //if (village.Storage.AddProduction(village.Production).IsGreaterOrEq(building.UpgradeCost))
+                    //    Thread.Sleep(5 * 1000 * 60);
+                    //else
                         Account.Driver.NpcTrade(VillageId, village.Storage.Npc(building.UpgradeCost));
                 }
             }
@@ -166,7 +166,8 @@ namespace TravianTools.TravianCommands
 
             if (BuildInst)
             {
-                var q = village.Queue.Queue.First(x => x.idq == (LocationId > 18 ? 2 : 1));
+                var q = village.Queue.Queue.FirstOrDefault(x => x.idq == (LocationId > 18 ? 1 : 2));
+                if (q == default) return false;
                 if (village.Queue.UpdateTimeStamp + 295 >= q.finishTime)
                     Account.Driver.FinishNow(VillageId, q.idq, 0);
                 else

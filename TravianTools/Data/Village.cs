@@ -260,7 +260,7 @@ namespace TravianTools.Data
             if (data == null && time == -1)
             {
                 Logger.Info($"[{Account.Name}:{Name}]: Village update load data");
-                Account.Driver.GetCache_Building(Id);
+                Account.Driver.GetCache_VillageList();
                 return;
             }
 

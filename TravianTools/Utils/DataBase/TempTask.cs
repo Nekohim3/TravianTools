@@ -38,7 +38,7 @@ namespace TravianTools.Utils.DataBase
         }
 
         private TaskStatus _status;
-
+        [JsonIgnore]
         public TaskStatus Status
         {
             get => _status;

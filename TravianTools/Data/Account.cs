@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Documents;
+using System.Windows.Markup;
 using System.Xml.Serialization;
 using Microsoft.Practices.Prism.ViewModel;
 using Newtonsoft.Json;
@@ -191,9 +192,10 @@ namespace TravianTools.Data
                                              Driver.Init(acc);
                                              Driver.Chrome.Navigate().GoToUrl(!string.IsNullOrEmpty(acc.RefLink) ? acc.RefLink : $"https://{g.Settings.Server}.{g.Settings.Domain}");
 
-                                             var sel = g.Accounts.SelectedAccount;
-                                             g.Accounts.SelectedAccount = null;
-                                             g.Accounts.SelectedAccount = sel;
+                                             //var sel = g.Accounts.SelectedAccount;
+                                             //g.Accounts.SelectedAccount = null;
+                                             //g.Accounts.SelectedAccount = g.Accounts.SelectedAccount;
+                                             g.Accounts.UpdateSelectedAccount();
                                              if (RegistrationComplete)
                                              {
                                                  var ele = Driver.Wait(By.Id("layoutHeader"));
@@ -205,7 +207,8 @@ namespace TravianTools.Data
                                              }
 
                                              Running = true;
-                                         });
+                                             g.Accounts.UpdateSelectedAccount();
+            });
         }
 
         public void Stop()
